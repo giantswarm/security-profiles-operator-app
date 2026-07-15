@@ -1,12 +1,12 @@
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/giantswarm/{APP-NAME}/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/giantswarm/{APP-NAME}/tree/main)
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/giantswarm/{APP-NAME}/badge)](https://securityscorecards.dev/viewer/?uri=github.com/giantswarm/{APP-NAME})
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/giantswarm/security-profiles-operator-app/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/giantswarm/security-profiles-operator-app/tree/main)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/giantswarm/security-profiles-operator-app/badge)](https://securityscorecards.dev/viewer/?uri=github.com/giantswarm/security-profiles-operator-app)
 
 [Guide about how to manage an app on Giant Swarm](https://handbook.giantswarm.io/docs/dev-and-releng/app-developer-processes/adding_app_to_appcatalog/)
 
-# {APP-NAME} chart
+# security-profiles-operator chart
 
-Giant Swarm offers a {APP-NAME} App which can be installed in workload clusters.
-Here, we define the {APP-NAME} chart with its templates and default configuration.
+Giant Swarm offers a security-profiles-operator App which can be installed in workload clusters.
+Here, we define the security-profiles-operator chart with its templates and default configuration.
 
 **What is this app?**
 
@@ -29,7 +29,6 @@ There are several ways to install this app onto a workload cluster.
 
 ```yaml
 # values.yaml
-
 ```
 
 ### Sample App CR and ConfigMap for the management cluster
@@ -40,12 +39,10 @@ Here is an example that would install the app to workload cluster `abc12`:
 
 ```yaml
 # appCR.yaml
-
 ```
 
 ```yaml
 # user-values-configmap.yaml
-
 ```
 
 See our [full reference on how to configure apps](https://docs.giantswarm.io/tutorials/fleet-management/app-platform/app-configuration/) for more details.
