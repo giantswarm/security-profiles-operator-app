@@ -17,7 +17,7 @@
   packageRules: [
     {
       groupName: "security-profiles-operator",
-      branchPrefix: "renovate/",
+      branchPrefix: "renovate/vendir/",
       matchDepNames: ["kubernetes-sigs/security-profiles-operator"],
     },
   ],
