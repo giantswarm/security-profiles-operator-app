@@ -2,11 +2,16 @@
   extends: [
     // Base config - https://github.com/giantswarm/renovate-presets/blob/main/default.json5
     "github>giantswarm/renovate-presets:default.json5",
+    "github>giantswarm/renovate-presets:disable-vendir.json5",
     "github>giantswarm/renovate-presets:disable-upstream-charts.json5",
   ],
   regexManagers: [
     {
-      fileMatch: ["helm/.*/values\\.yaml$", "helm/.*/values\\.schema\\.json$", "helm/.*/README\\.md$"],
+      fileMatch: [
+        "helm/.*/values\\.yaml$",
+        "helm/.*/values\\.schema\\.json$",
+        "helm/.*/README\\.md$",
+      ],
       matchStrings: [
         "kubernetes-sigs/security-profiles-operator/blob/v(?<currentValue>[^/]+)/",
       ],
