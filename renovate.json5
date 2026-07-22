@@ -6,7 +6,7 @@
   ],
   regexManagers: [
     {
-      fileMatch: ["helm/.*/values\\.yaml$"],
+      fileMatch: ["helm/.*/values\\.yaml$", "helm/.*/values\\.schema\\.json$", "helm/.*/README\\.md$"],
       matchStrings: [
         "kubernetes-sigs/security-profiles-operator/blob/v(?<currentValue>[^/]+)/",
       ],
