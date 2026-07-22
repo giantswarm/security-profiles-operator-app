@@ -4,4 +4,20 @@
     "github>giantswarm/renovate-presets:default.json5",
     "github>giantswarm/renovate-presets:disable-upstream-charts.json5",
   ],
+  regexManagers: [
+    {
+      fileMatch: ["helm/.*/values\\.yaml$"],
+      matchStrings: [
+        "kubernetes-sigs/security-profiles-operator/blob/v(?<currentValue>[^/]+)/",
+      ],
+      depNameTemplate: "kubernetes-sigs/security-profiles-operator",
+      datasourceTemplate: "github-releases",
+    },
+  ],
+  packageRules: [
+    {
+      groupName: "security-profiles-operator",
+      matchDepNames: ["kubernetes-sigs/security-profiles-operator"],
+    },
+  ],
 }
