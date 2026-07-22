@@ -13,7 +13,7 @@
         "helm/.*/README\\.md$",
       ],
       matchStrings: [
-        "kubernetes-sigs/security-profiles-operator/blob/v(?<currentValue>[^/]+)/",
+        "kubernetes-sigs/security-profiles-operator/blob/(?<currentValue>v[^/]+)/",
       ],
       depNameTemplate: "kubernetes-sigs/security-profiles-operator",
       datasourceTemplate: "github-releases",
