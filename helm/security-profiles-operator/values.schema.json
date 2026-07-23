@@ -1,48 +1,10 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": "object",
-    "properties": {
-        "global": {
-            "description": "Global values shared between all subcharts",
-            "$comment": "Added automatically by 'helm schema' to allow this chart to be used as a Helm dependency, as the `additionalProperties` setting would otherwise collide with Helm's special 'global' values key.",
-            "type": [
-                "object",
-                "null"
-            ]
-        },
-        "image": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "tag": {
-                    "type": "string"
-                }
-            },
-            "additionalProperties": false
-        },
-        "registry": {
-            "type": "object",
-            "properties": {
-                "domain": {
-                    "type": "string"
-                }
-            },
-            "additionalProperties": false
-        },
-        "security-profiles-operator": {
-            "description": "Values passed through to the upstream chart. For available options, see the [upstream values.yaml](https://github.com/kubernetes-sigs/security-profiles-operator/blob/v0.10.1/deploy/helm/values.yaml).",
-            "$ref": "#/$defs/values.schema.json",
-            "type": "object",
-            "additionalProperties": false
-        }
-    },
-    "additionalProperties": false,
     "$defs": {
         "values.schema.json": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "type": "object",
+            "additionalProperties": false,
             "properties": {
                 "affinity": {
                     "type": "object",
@@ -50,6 +12,7 @@
                 },
                 "autoscaling": {
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                         "enabled": {
                             "type": "boolean"
@@ -60,11 +23,11 @@
                         "minReplicas": {
                             "type": "integer"
                         }
-                    },
-                    "additionalProperties": false
+                    }
                 },
                 "daemon": {
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                         "affinity": {
                             "type": "object",
@@ -72,9 +35,11 @@
                         },
                         "resources": {
                             "type": "object",
+                            "additionalProperties": false,
                             "properties": {
                                 "limits": {
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "properties": {
                                         "ephemeral-storage": {
                                             "type": "string"
@@ -82,11 +47,11 @@
                                         "memory": {
                                             "type": "string"
                                         }
-                                    },
-                                    "additionalProperties": false
+                                    }
                                 },
                                 "requests": {
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "properties": {
                                         "cpu": {
                                             "type": "string"
@@ -97,16 +62,15 @@
                                         "memory": {
                                             "type": "string"
                                         }
-                                    },
-                                    "additionalProperties": false
+                                    }
                                 }
-                            },
-                            "additionalProperties": false
+                            }
                         },
                         "tolerations": {
                             "type": "array",
                             "items": {
                                 "type": "object",
+                                "additionalProperties": false,
                                 "properties": {
                                     "effect": {
                                         "type": "string"
@@ -117,12 +81,10 @@
                                     "operator": {
                                         "type": "string"
                                     }
-                                },
-                                "additionalProperties": false
+                                }
                             }
                         }
-                    },
-                    "additionalProperties": false
+                    }
                 },
                 "enableAppArmor": {
                     "type": "boolean"
@@ -146,12 +108,12 @@
                     "type": "string"
                 },
                 "global": {
-                    "description": "Global values shared between all subcharts",
-                    "$comment": "Added automatically by 'helm schema' to allow this chart to be used as a Helm dependency, as the `additionalProperties` setting would otherwise collide with Helm's special 'global' values key.",
                     "type": [
                         "object",
                         "null"
                     ],
+                    "description": "Global values shared between all subcharts",
+                    "$comment": "Added automatically by 'helm schema' to allow this chart to be used as a Helm dependency, as the `additionalProperties` setting would otherwise collide with Helm's special 'global' values key.",
                     "additionalProperties": false
                 },
                 "nameOverride": {
@@ -174,9 +136,11 @@
                 },
                 "resources": {
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                         "limits": {
                             "type": "object",
+                            "additionalProperties": false,
                             "properties": {
                                 "cpu": {
                                     "type": "string"
@@ -184,11 +148,11 @@
                                 "memory": {
                                     "type": "string"
                                 }
-                            },
-                            "additionalProperties": false
+                            }
                         },
                         "requests": {
                             "type": "object",
+                            "additionalProperties": false,
                             "properties": {
                                 "cpu": {
                                     "type": "string"
@@ -196,17 +160,17 @@
                                 "memory": {
                                     "type": "string"
                                 }
-                            },
-                            "additionalProperties": false
+                            }
                         }
-                    },
-                    "additionalProperties": false
+                    }
                 },
                 "selinuxdImage": {
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                         "default": {
                             "type": "object",
+                            "additionalProperties": false,
                             "properties": {
                                 "registry": {
                                     "type": "string"
@@ -217,11 +181,11 @@
                                 "tag": {
                                     "type": "string"
                                 }
-                            },
-                            "additionalProperties": false
+                            }
                         },
                         "el8": {
                             "type": "object",
+                            "additionalProperties": false,
                             "properties": {
                                 "registry": {
                                     "type": "string"
@@ -232,11 +196,11 @@
                                 "tag": {
                                     "type": "string"
                                 }
-                            },
-                            "additionalProperties": false
+                            }
                         },
                         "el9": {
                             "type": "object",
+                            "additionalProperties": false,
                             "properties": {
                                 "registry": {
                                     "type": "string"
@@ -247,11 +211,11 @@
                                 "tag": {
                                     "type": "string"
                                 }
-                            },
-                            "additionalProperties": false
+                            }
                         },
                         "fedora": {
                             "type": "object",
+                            "additionalProperties": false,
                             "properties": {
                                 "registry": {
                                     "type": "string"
@@ -262,14 +226,13 @@
                                 "tag": {
                                     "type": "string"
                                 }
-                            },
-                            "additionalProperties": false
+                            }
                         }
-                    },
-                    "additionalProperties": false
+                    }
                 },
                 "serviceAccount": {
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                         "annotations": {
                             "type": "object",
@@ -281,11 +244,11 @@
                         "name": {
                             "type": "string"
                         }
-                    },
-                    "additionalProperties": false
+                    }
                 },
                 "spoImage": {
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                         "registry": {
                             "type": "string"
@@ -296,8 +259,7 @@
                         "tag": {
                             "type": "string"
                         }
-                    },
-                    "additionalProperties": false
+                    }
                 },
                 "tolerations": {
                     "type": "array"
@@ -305,7 +267,45 @@
                 "verbosity": {
                     "type": "integer"
                 }
-            },
+            }
+        }
+    },
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "global": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "description": "Global values shared between all subcharts",
+            "$comment": "Added automatically by 'helm schema' to allow this chart to be used as a Helm dependency, as the `additionalProperties` setting would otherwise collide with Helm's special 'global' values key."
+        },
+        "image": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "tag": {
+                    "type": "string"
+                }
+            }
+        },
+        "registry": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "domain": {
+                    "type": "string"
+                }
+            }
+        },
+        "security-profiles-operator": {
+            "$ref": "#/$defs/values.schema.json",
+            "type": "object",
+            "description": "Values passed through to the upstream chart. For available options, see the [upstream values.yaml](https://github.com/kubernetes-sigs/security-profiles-operator/blob/v1.0.0/deploy/helm/values.yaml).",
             "additionalProperties": false
         }
     }

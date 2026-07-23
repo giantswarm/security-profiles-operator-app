@@ -12,7 +12,7 @@ A Giant Swarm App for security-profiles-operator, managing Seccomp, AppArmor, an
 
 | Repository | Name | Version |
 |------------|------|---------|
-|  | security-profiles-operator | 0.10.1 |
+|  | security-profiles-operator | 1.0.0 |
 
 ## Values
 
@@ -21,4 +21,4 @@ A Giant Swarm App for security-profiles-operator, managing Seccomp, AppArmor, an
 | image.name | string | `"giantswarm/security-profiles-operator"` |  |
 | image.tag | string | `""` |  |
 | registry.domain | string | `"gsoci.azurecr.io"` |  |
-| security-profiles-operator | object | `{}` | Values passed through to the upstream chart. For available options, see the [upstream values.yaml](https://github.com/kubernetes-sigs/security-profiles-operator/blob/v0.10.1/deploy/helm/values.yaml). |
+| security-profiles-operator | object | `{}` | Values passed through to the upstream chart. For available options, see the [upstream values.yaml](https://github.com/kubernetes-sigs/security-profiles-operator/blob/v1.0.0/deploy/helm/values.yaml). |

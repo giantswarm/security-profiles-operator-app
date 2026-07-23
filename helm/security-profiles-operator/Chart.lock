@@ -1,6 +1,6 @@
 dependencies:
 - name: security-profiles-operator
   repository: ""
-  version: 0.10.1
-digest: sha256:72a4b339451ca8dd679ff01c9d0e694dab3c42d58f6e8d96cf004991f617a4fa
-generated: "2026-07-21T21:35:19.596682615+02:00"
+  version: 1.0.0
+digest: sha256:8835991f75d9e6973d0ada86018a5cd747afd71013ac1e848eb5ae1c97a03374
+generated: "2026-07-22T19:11:55.256620517Z"
