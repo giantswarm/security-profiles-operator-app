@@ -305,7 +305,7 @@
         "security-profiles-operator": {
             "$ref": "#/$defs/values.schema.json",
             "type": "object",
-            "description": "Values passed through to the upstream chart. For available options, see the [upstream values.yaml](https://github.com/kubernetes-sigs/security-profiles-operator/blob/v0.10.1/deploy/helm/values.yaml).",
+            "description": "Values passed through to the upstream chart. For available options, see the [upstream values.yaml](https://github.com/kubernetes-sigs/security-profiles-operator/blob/v1.0.0/deploy/helm/values.yaml).",
             "additionalProperties": false
         }
     }
