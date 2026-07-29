@@ -11,4 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated `security-profiles-operator` to upstream version `v1.0.0`.
 
+### Fixed
+
+- Values passed to the upstream chart under `security-profiles-operator` are no
+  longer rejected by the values schema.
+
 [Unreleased]: https://github.com/giantswarm/security-profiles-operator-app/tree/main
