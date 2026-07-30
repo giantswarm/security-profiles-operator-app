@@ -24,6 +24,7 @@
       groupName: "security-profiles-operator",
       branchPrefix: "renovate/vendir/",
       matchDepNames: ["kubernetes-sigs/security-profiles-operator"],
+      prCreation: "approval",
     },
   ],
 }
