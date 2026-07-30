@@ -16,10 +16,12 @@
       matchStrings: [
         "kubernetes-sigs/security-profiles-operator/blob/(?<currentValue>v[^/]+)/",
         "spoImage:\\s*\\n(?:[^\\n]*\\n)*?\\s*tag:\\s*(?<currentValue>v[^\\s]+)",
+        "\"spoImage\":\\{[^}]*\"tag\":\"(?<currentValue>v[^\"]+)\"",
         "appVersion:\\s*(?<currentValue>[^\\s]+)",
       ],
       depNameTemplate: "kubernetes-sigs/security-profiles-operator",
       datasourceTemplate: "github-releases",
+      extractVersionTemplate: "^v?(?<version>.+)$",
     },
   ],
   packageRules: [
