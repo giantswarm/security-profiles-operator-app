@@ -159,6 +159,27 @@
             },
             "additionalProperties": false
         },
+        "selinux": {
+            "type": "object",
+            "properties": {
+                "enable": {
+                    "type": "boolean"
+                },
+                "options": {
+                    "type": "object",
+                    "properties": {
+                        "allowedTypes": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
         "selinuxdImage": {
             "type": "object",
             "properties": {

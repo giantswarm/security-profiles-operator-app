@@ -35,7 +35,7 @@
             "description": "Values passed through to the upstream chart. For available options, see the [upstream values.yaml](https://github.com/kubernetes-sigs/security-profiles-operator/blob/v0.10.1/deploy/helm/values.yaml).",
             "$ref": "#/$defs/values.schema.json",
             "type": "object",
-            "additionalProperties": false
+            "additionalProperties": true
         }
     },
     "additionalProperties": false,
@@ -195,6 +195,27 @@
                                 },
                                 "memory": {
                                     "type": "string"
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "selinux": {
+                    "type": "object",
+                    "properties": {
+                        "enable": {
+                            "type": "boolean"
+                        },
+                        "options": {
+                            "type": "object",
+                            "properties": {
+                                "allowedTypes": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
                                 }
                             },
                             "additionalProperties": false
