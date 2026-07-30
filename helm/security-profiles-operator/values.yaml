@@ -19,7 +19,7 @@ security-profiles-operator:
   spoImage:
     registry: registry.k8s.io
     repository: security-profiles-operator/security-profiles-operator
-    tag: v0.10.1
+    tag: v1.0.0
 
   # @schema hidden
   selinux:
