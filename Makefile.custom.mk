@@ -39,6 +39,6 @@ generate-upstream-schema: install-helm-schema install-yq ## Generate JSON schema
     	-f <($(YQ_BIN) '.["security-profiles-operator"]' helm/security-profiles-operator/values.yaml | grep -v '# @schema hidden') \
 		-f helm/security-profiles-operator/charts/security-profiles-operator/values.yaml \
 		-o helm/security-profiles-operator/charts/security-profiles-operator/values.schema.json \
-		--no-additional-properties
+		--config helm/security-profiles-operator/.schema.yaml
 
 update-deps: generate-upstream-schema
