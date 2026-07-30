@@ -1,0 +1,7 @@
+smoke-tests-cluster-type: kind
+
+# TODO: Enable upgrade step after first release
+skip-steps: [upgrade, functional]
+
+upgrade-tests-cluster-type: kind
+upgrade-tests-app-catalog-url: https://giantswarm.github.io/giantswarm-catalog
