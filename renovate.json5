@@ -8,12 +8,15 @@
   regexManagers: [
     {
       fileMatch: [
+        "helm/security-profiles-operator/Chart\\.yaml$",
         "helm/.*/values\\.yaml$",
         "helm/.*/values\\.schema\\.json$",
         "helm/.*/README\\.md$",
       ],
       matchStrings: [
         "kubernetes-sigs/security-profiles-operator/blob/(?<currentValue>v[^/]+)/",
+        "spoImage:\\s*\\n(?:[^\\n]*\\n)*?\\s*tag:\\s*(?<currentValue>v[^\\s]+)",
+        "appVersion:\\s*(?<currentValue>[^\\s]+)",
       ],
       depNameTemplate: "kubernetes-sigs/security-profiles-operator",
       datasourceTemplate: "github-releases",
