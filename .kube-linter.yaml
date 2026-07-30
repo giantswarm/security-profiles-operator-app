@@ -1,0 +1,17 @@
+checks:
+  addAllBuiltIn: true
+  exclude:
+    - access-to-create-pods
+    - dnsconfig-options
+    - no-anti-affinity
+    - no-liveness-probe # Not available in upstream
+    - no-node-affinity
+    - no-readiness-probe # Not available in upstream
+    - no-rolling-update-strategy # Not available in upstream
+    - non-isolated-pod
+    - required-annotation-email
+    - required-label-owner
+    - restart-policy # Not available in upstream
+    - run-as-non-root
+    - sorted-keys
+    - use-namespace # Not available in upstream
