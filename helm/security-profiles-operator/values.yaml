@@ -14,6 +14,7 @@ registry:
 # @schema $ref: charts/security-profiles-operator/values.schema.json
 # @schema additionalProperties: true
 # -- Values passed through to the upstream chart. For available options, see the [upstream values.yaml](https://github.com/kubernetes-sigs/security-profiles-operator/blob/v1.0.0/deploy/helm/values.yaml).
+# @default -- See [values.yaml](./values.yaml#L17)
 security-profiles-operator:
   # @schema hidden
   spoImage:

@@ -3,6 +3,7 @@
     // Base config - https://github.com/giantswarm/renovate-presets/blob/main/default.json5
     "github>giantswarm/renovate-presets:default.json5",
     "github>giantswarm/renovate-presets:disable-vendir.json5",
+    "github>giantswarm/renovate-presets:disable-helm-values.json5",
     "github>giantswarm/renovate-presets:disable-upstream-charts.json5",
   ],
   regexManagers: [
