@@ -22,9 +22,3 @@ security-profiles-operator:
     tag: v1.0.0
 
   # @schema hidden
-  selinux:
-    enable: true
-    options:
-      allowedTypes:
-        - kernel_t
-        - security_t
