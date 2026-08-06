@@ -1,0 +1,107 @@
+{{- if .Values.kyvernoPolicyExceptions.enabled }}
+apiVersion: kyverno.io/v2
+kind: PolicyException
+metadata:
+  name: security-profiles-operator-exceptions
+  namespace: {{ .Values.kyvernoPolicyExceptions.namespace | default .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": "pre-install,pre-upgrade"
+spec:
+  exceptions:
+    - policyName: disallow-capabilities-strict
+      ruleNames:
+        - require-drop-all
+        - autogen-require-drop-all
+  match:
+    any:
+      - resources:
+          kinds:
+            - Pod
+            - Deployment
+          namespaces:
+            - {{ .Release.Namespace }}
+          names:
+            - security-profiles-operator*
+---
+apiVersion: kyverno.io/v2
+kind: PolicyException
+metadata:
+  name: security-profiles-operator-webhook-exceptions
+  namespace: {{ .Values.kyvernoPolicyExceptions.namespace | default .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": "pre-install,pre-upgrade"
+spec:
+  exceptions:
+    - policyName: require-run-as-nonroot
+      ruleNames:
+        - run-as-non-root
+        - autogen-run-as-non-root
+    - policyName: restrict-seccomp-strict
+      ruleNames:
+        - check-seccomp-strict
+        - autogen-check-seccomp-strict
+  match:
+    any:
+      - resources:
+          kinds:
+            - Pod
+            - Deployment
+          namespaces:
+            - {{ .Release.Namespace }}
+          names:
+            - security-profiles-operator-webhook*
+---
+apiVersion: kyverno.io/v2
+kind: PolicyException
+metadata:
+  name: security-profiles-operator-spod-exceptions
+  namespace: {{ .Values.kyvernoPolicyExceptions.namespace | default .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": "pre-install,pre-upgrade"
+spec:
+  exceptions:
+    - policyName: disallow-capabilities-strict
+      ruleNames:
+        - require-drop-all
+        - autogen-require-drop-all
+        - adding-capabilities-strict
+        - autogen-adding-capabilities-strict
+    - policyName: disallow-host-path
+      ruleNames:
+        - host-path
+        - autogen-host-path
+    - policyName: disallow-privilege-escalation
+      ruleNames:
+        - privilege-escalation
+        - autogen-privilege-escalation
+    - policyName: disallow-privileged-containers
+      ruleNames:
+        - privileged-containers
+        - autogen-privileged-containers
+    - policyName: disallow-selinux
+      ruleNames:
+        - selinux-type
+        - autogen-selinux-type
+    - policyName: require-run-as-non-root-user
+      ruleNames:
+        - run-as-non-root-user
+        - autogen-run-as-non-root-user
+    - policyName: require-run-as-nonroot
+      ruleNames:
+        - run-as-non-root
+        - autogen-run-as-non-root
+    - policyName: restrict-volume-types
+      ruleNames:
+        - restricted-volumes
+        - autogen-restricted-volumes
+  match:
+    any:
+      - resources:
+          kinds:
+            - Pod
+            - DaemonSet
+          namespaces:
+            - {{ .Release.Namespace }}
+          names:
+            - spod*
+{{- end }}

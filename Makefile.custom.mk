@@ -1,5 +1,7 @@
 ##@ Custom
 
+SHELL := bash
+
 HELM_SCHEMA_VERSION := 2.5.0
 HELM_SCHEMA_URL := https://github.com/losisin/helm-values-schema-json/releases/download/v$(HELM_SCHEMA_VERSION)/helm-values-schema-json_$(HELM_SCHEMA_VERSION)_linux_amd64.tgz
 # Resolve helm-schema binary: standalone binary in PATH > helm plugin > fallback download path
@@ -36,7 +38,7 @@ install-yq: ## Install yq binary if not already installed.
 generate-upstream-schema: install-helm-schema install-yq ## Generate JSON schema from upstream values.yaml.
 	@echo "====> $@"
 	$(HELM_SCHEMA_BIN) \
-    	-f <($(YQ_BIN) '.["security-profiles-operator"]' helm/security-profiles-operator/values.yaml | grep -v '# @schema hidden') \
+		-f <($(YQ_BIN) '.["security-profiles-operator"]' helm/security-profiles-operator/values.yaml | grep -v '# @schema hidden') \
 		-f helm/security-profiles-operator/charts/security-profiles-operator/values.yaml \
 		-o helm/security-profiles-operator/charts/security-profiles-operator/values.schema.json \
 		--config helm/security-profiles-operator/.schema.yaml
