@@ -1,15 +1,6 @@
-# This file is a Helm values file for the security-profiles-operator chart.
-#
-# To learn more about how to configure your app on your cluster
-# and override the default values in here, visit:
-#
-#   https://docs.giantswarm.io/tutorials/fleet-management/app-platform/app-configuration/#basic-values-merging-example
-#
-image:
-  name: "giantswarm/security-profiles-operator"
-  tag: ""
-registry:
-  domain: gsoci.azurecr.io
+kyvernoPolicyExceptions:
+  enabled: true
+  namespace: giantswarm
 
 # @schema $ref: charts/security-profiles-operator/values.schema.json
 # @schema additionalProperties: true
@@ -29,3 +20,34 @@ security-profiles-operator:
       allowedTypes:
         - kernel_t
         - security_t
+
+  # @schema hidden
+  daemon:
+    # @schema itemRef: $k8s/_definitions.json#/definitions/io.k8s.api.core.v1.Toleration
+    tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+        operator: Exists
+      - key: node-role.kubernetes.io/control-plane
+        effect: NoSchedule
+        operator: Exists
+      - key: node.kubernetes.io/not-ready
+        effect: NoExecute
+        operator: Exists
+      - key: node.kubernetes.io/not-ready
+        effect: NoSchedule
+        operator: Exists
+      - key: node.cilium.io/agent-not-ready
+        effect: NoSchedule
+        operator: Exists
+      - key: ebs.csi.aws.com/agent-not-ready
+        effect: NoExecute
+        operator: Exists
+
+  # @schema hidden
+  # @schema additionalProperties: true
+  # @schema $ref: $k8s/_definitions.json#/definitions/io.k8s.api.core.v1.PodSecurityContext
+  podSecurityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
