@@ -2,10 +2,10 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - git:
-      commitTitle: Fix cloudbuild policy.json for opm render...
-      sha: 22c9486361e1f4affaf1fc4c8adb1057b3191422
+      commitTitle: 'fix(selinux): use client reader to get selinux image...'
+      sha: 3452bfbe48210f87a4dff3f2ffd7ef4dca0d6000
       tags:
-      - v0.10.1
+      - v1.0.0
     path: .
   path: helm/security-profiles-operator/charts/security-profiles-operator
 kind: LockConfig
