@@ -16,6 +16,7 @@ security-profiles-operator:
   # @schema hidden
   selinux:
     enable: true
+    customTemplatesConfigMap: udica-templates
     options:
       allowedTypes:
         - kernel_t
