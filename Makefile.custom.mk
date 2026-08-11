@@ -9,11 +9,7 @@ _HELM_SCHEMA_STANDALONE := $(shell command -v helm-values-schema-json 2>/dev/nul
 _HELM_SCHEMA_PLUGIN := $(shell helm plugin list 2>/dev/null | grep -q '^schema' && echo 'helm schema')
 HELM_SCHEMA_BIN := $(or $(_HELM_SCHEMA_STANDALONE),$(_HELM_SCHEMA_PLUGIN),/tmp/helm-values-schema-json)
 
-YQ_VERSION := 4.44.3
-YQ_BIN := $(or $(shell command -v yq 2>/dev/null),/tmp/yq)
-YQ_URL := https://github.com/mikefarah/yq/releases/download/v$(YQ_VERSION)/yq_linux_amd64
-
-.PHONY: install-helm-schema install-yq generate-upstream-schema
+.PHONY: install-helm-schema generate-upstream-schema
 
 install-helm-schema: ## Install helm-values-schema-json binary if not already installed.
 	@echo "====> $@"
@@ -26,21 +22,12 @@ install-helm-schema: ## Install helm-values-schema-json binary if not already in
 		curl -sSL $(HELM_SCHEMA_URL) | tar -xz -C /tmp schema && mv /tmp/schema /tmp/helm-values-schema-json; \
 	fi
 
-install-yq: ## Install yq binary if not already installed.
-	@echo "====> $@"
-	@if [ -x "$(YQ_BIN)" ]; then \
-		echo "yq already installed at $(YQ_BIN)"; \
-	else \
-		echo "Installing yq $(YQ_VERSION)..."; \
-		curl -sSL $(YQ_URL) -o /tmp/yq && chmod +x /tmp/yq; \
-	fi
-
-generate-upstream-schema: install-helm-schema install-yq ## Generate JSON schema from upstream values.yaml.
+generate-upstream-schema: install-helm-schema ## Generate JSON schema from upstream values.yaml.
 	@echo "====> $@"
 	$(HELM_SCHEMA_BIN) \
-		-f <($(YQ_BIN) '.["security-profiles-operator"]' helm/security-profiles-operator/values.yaml | grep -v '# @schema hidden') \
+		-f <($(YQ) '.["security-profiles-operator"]' helm/security-profiles-operator/values.yaml | grep -v '# @schema hidden') \
 		-f helm/security-profiles-operator/charts/security-profiles-operator/values.yaml \
 		-o helm/security-profiles-operator/charts/security-profiles-operator/values.schema.json \
 		--config helm/security-profiles-operator/.schema.yaml
 
-update-deps: generate-upstream-schema
+update-deps: generate-upstream-schema helm-docs
