@@ -178,6 +178,9 @@
         "selinux": {
             "type": "object",
             "properties": {
+                "customTemplatesConfigMap": {
+                    "type": "string"
+                },
                 "enable": {
                     "type": "boolean"
                 },
