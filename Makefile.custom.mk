@@ -43,4 +43,4 @@ generate-upstream-schema: install-helm-schema install-yq ## Generate JSON schema
 		-o helm/security-profiles-operator/charts/security-profiles-operator/values.schema.json \
 		--config helm/security-profiles-operator/.schema.yaml
 
-update-deps: generate-upstream-schema
+update-deps: generate-upstream-schema helm-docs
