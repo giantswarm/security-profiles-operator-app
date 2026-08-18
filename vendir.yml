@@ -11,3 +11,13 @@ directories:
         includePaths:
           - deploy/helm/**/*
         newRootPath: deploy/helm
+  - path: helm/security-profiles-operator/udica-templates
+    contents:
+      - path: .
+        git:
+          url: https://github.com/SELinuxProject/refpolicy
+          # renovate: datasource=github-tags depName=SELinuxProject/refpolicy
+          ref: RELEASE_2_20260312
+        includePaths:
+          - udica-templates/**/*
+        newRootPath: udica-templates
