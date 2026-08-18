@@ -30,5 +30,10 @@
       matchDepNames: ["kubernetes-sigs/security-profiles-operator"],
       prCreation: "approval",
     },
+    {
+      branchPrefix: "renovate/vendir/",
+      matchDepNames: ["SELinuxProject/refpolicy"],
+      prCreation: "approval",
+    },
   ],
 }

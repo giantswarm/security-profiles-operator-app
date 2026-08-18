@@ -8,4 +8,12 @@ directories:
       - v1.0.0
     path: .
   path: helm/security-profiles-operator/charts/security-profiles-operator
+- contents:
+  - git:
+      commitTitle: Update Changelog and VERSION for release 2.20260312....
+      sha: 440d3f5f129985c0193edff9948a1add42469692
+      tags:
+      - RELEASE_2_20260312
+    path: .
+  path: helm/security-profiles-operator/udica-templates
 kind: LockConfig

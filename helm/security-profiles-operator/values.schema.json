@@ -388,6 +388,9 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
+                        "customTemplatesConfigMap": {
+                            "type": "string"
+                        },
                         "enable": {
                             "type": "boolean"
                         },
