@@ -14,13 +14,6 @@ security-profiles-operator:
     tag: v1.0.0
 
   # @schema hidden
-  selinux:
-    enable: true
-    customTemplatesConfigMap: udica-templates
-    options:
-      allowedTypes:
-        - kernel_t
-        - security_t
 
   # @schema hidden
   daemon:
