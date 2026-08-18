@@ -1,0 +1,4 @@
+exclude:
+  # Values missing or commented out in the upstream values.yaml but still functional
+  - "security-profiles-operator.selinux.enable"
+  - "security-profiles-operator.selinux.options.**"
