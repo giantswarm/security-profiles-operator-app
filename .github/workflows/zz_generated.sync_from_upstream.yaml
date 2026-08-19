@@ -14,7 +14,7 @@ on:
 
 jobs:
   sync-from-upstream:
-    uses: giantswarm/github-workflows/.github/workflows/sync-from-upstream.yaml@main
+    uses: giantswarm/github-workflows/.github/workflows/sync-from-upstream.yaml@sync-non-chart-vendir-entries
     permissions:
       contents: write
     with:
