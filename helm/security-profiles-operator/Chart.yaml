@@ -1,5 +1,5 @@
 apiVersion: v2
-appVersion: 0.10.1
+appVersion: 1.0.0
 name: security-profiles-operator
 description: A Giant Swarm App for security-profiles-operator, managing Seccomp, AppArmor, and SELinux profiles for Kubernetes workloads.
 home: https://github.com/giantswarm/security-profiles-operator-app
