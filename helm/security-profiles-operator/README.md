@@ -20,4 +20,4 @@ A Giant Swarm App for security-profiles-operator, managing Seccomp, AppArmor, an
 |-----|------|---------|-------------|
 | kyvernoPolicyExceptions.enabled | bool | `true` |  |
 | kyvernoPolicyExceptions.namespace | string | `"giantswarm"` |  |
-| security-profiles-operator | object | See [values.yaml](./values.yaml#L17) | Values passed through to the upstream chart. For available options, see the [upstream values.yaml](https://github.com/kubernetes-sigs/security-profiles-operator/blob/v0.10.1/deploy/helm/values.yaml). |
+| security-profiles-operator | object | See [values.yaml](./values.yaml#L17) | Values passed through to the upstream chart. For available options, see the [upstream values.yaml](https://github.com/kubernetes-sigs/security-profiles-operator/blob/v1.0.0/deploy/helm/values.yaml). |
