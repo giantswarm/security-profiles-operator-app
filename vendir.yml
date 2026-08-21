@@ -17,7 +17,7 @@ directories:
         git:
           url: https://github.com/SELinuxProject/refpolicy
           # renovate: datasource=github-tags depName=SELinuxProject/refpolicy versioning=regex:^RELEASE_(?<major>\d+)_(?<minor>\d+)$
-          ref: RELEASE_2_20260312
+          ref: RELEASE_2_20260616
         includePaths:
           - udica-templates/**/*
         newRootPath: udica-templates
