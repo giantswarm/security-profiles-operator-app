@@ -14,6 +14,9 @@ security-profiles-operator:
     tag: v0.10.1
 
   # @schema hidden
+  enableLogEnricher: true
+
+  # @schema hidden
   selinux:
     enable: true
     customTemplatesConfigMap: udica-templates
