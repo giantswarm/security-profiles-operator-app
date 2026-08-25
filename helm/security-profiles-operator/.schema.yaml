@@ -5,10 +5,13 @@
 #
 #    devctl
 #
-#    https://github.com/giantswarm/devctl/blob/68cb36b1a342d440a7cdc1e5b65336a1895cd013/pkg/gen/input/precommit/internal/file/schema.yaml.template
+#    https://github.com/giantswarm/devctl/blob/529e8924bb4b0b60fb205dbbfb874ffc09d73e09/pkg/gen/input/precommit/internal/file/schema.yaml.template
 #
 
+# The generated app-platform file goes first so keys the chart defines itself
+# in values.yaml keep their own schema on merge.
 values:
+  - helm/security-profiles-operator/zz_generated.app-platform.values.yaml
   - helm/security-profiles-operator/values.yaml
 
 draft: 2020
