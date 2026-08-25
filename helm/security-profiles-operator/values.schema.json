@@ -517,40 +517,6 @@
     "type": "object",
     "additionalProperties": false,
     "properties": {
-        "baseDomain": {
-            "type": "string"
-        },
-        "bootstrapMode": {
-            "type": "object",
-            "additionalProperties": true
-        },
-        "chartOperator": {
-            "type": "object",
-            "additionalProperties": true
-        },
-        "ciliumNetworkPolicy": {
-            "type": "object",
-            "additionalProperties": true
-        },
-        "cluster": {
-            "type": "object",
-            "additionalProperties": true
-        },
-        "clusterCA": {
-            "type": "string"
-        },
-        "clusterCIDR": {
-            "type": "string"
-        },
-        "clusterDNSIP": {
-            "type": "string"
-        },
-        "clusterID": {
-            "type": "string"
-        },
-        "gcpProject": {
-            "type": "string"
-        },
         "global": {
             "type": [
                 "object",
@@ -571,17 +537,11 @@
                 }
             }
         },
-        "provider": {
-            "type": "string"
-        },
         "security-profiles-operator": {
             "$ref": "#/$defs/values.schema.json",
             "type": "object",
             "description": "Values passed through to the upstream chart. For available options, see the [upstream values.yaml](https://github.com/kubernetes-sigs/security-profiles-operator/blob/v1.0.0/deploy/helm/values.yaml).",
             "additionalProperties": true
-        },
-        "subscriptionID": {
-            "type": "string"
         }
     }
 }
