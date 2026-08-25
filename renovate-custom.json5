@@ -1,0 +1,37 @@
+{
+  extends: [
+    "github>giantswarm/renovate-presets:disable-vendir.json5",
+    "github>giantswarm/renovate-presets:disable-helm-values.json5",
+    "github>giantswarm/renovate-presets:disable-upstream-charts.json5",
+  ],
+  regexManagers: [
+    {
+      fileMatch: [
+        "helm/security-profiles-operator/Chart\\.yaml$",
+        "helm/.*/values\\.yaml$",
+        "helm/.*/values\\.schema\\.json$",
+        "helm/.*/README\\.md$",
+      ],
+      matchStrings: [
+        "kubernetes-sigs/security-profiles-operator/blob/(?<currentValue>v[^/]+)/",
+        "spoImage:\\s*\\n(?:[^\\n]*\\n)*?\\s*tag:\\s*(?<currentValue>v[^\\s]+)",
+        "appVersion:\\s*(?<currentValue>[^\\s]+)",
+      ],
+      depNameTemplate: "kubernetes-sigs/security-profiles-operator",
+      datasourceTemplate: "github-releases",
+    },
+  ],
+  packageRules: [
+    {
+      groupName: "security-profiles-operator",
+      branchPrefix: "renovate/vendir/",
+      matchDepNames: ["kubernetes-sigs/security-profiles-operator"],
+      prCreation: "approval",
+    },
+    {
+      branchPrefix: "renovate/vendir/",
+      matchDepNames: ["SELinuxProject/refpolicy"],
+      prCreation: "approval",
+    },
+  ],
+}
