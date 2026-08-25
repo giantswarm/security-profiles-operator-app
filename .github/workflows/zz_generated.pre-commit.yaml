@@ -2,7 +2,7 @@
 #
 #    devctl
 #
-#    https://github.com/giantswarm/devctl/blob/68cb36b1a342d440a7cdc1e5b65336a1895cd013/pkg/gen/input/precommit/internal/file/pre-commit-action.yaml.template
+#    https://github.com/giantswarm/devctl/blob/544d0af597cc1f0c03fbc8ce04ee9b0004d74581/pkg/gen/input/precommit/internal/file/pre-commit-action.yaml.template
 #
 name: pre-commit
 
