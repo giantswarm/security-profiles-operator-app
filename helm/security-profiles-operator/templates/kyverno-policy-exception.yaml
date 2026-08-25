@@ -62,22 +62,12 @@ spec:
   exceptions:
     - policyName: disallow-capabilities-strict
       ruleNames:
-        - require-drop-all
-        - autogen-require-drop-all
         - adding-capabilities-strict
         - autogen-adding-capabilities-strict
     - policyName: disallow-host-path
       ruleNames:
         - host-path
         - autogen-host-path
-    - policyName: disallow-privilege-escalation
-      ruleNames:
-        - privilege-escalation
-        - autogen-privilege-escalation
-    - policyName: disallow-privileged-containers
-      ruleNames:
-        - privileged-containers
-        - autogen-privileged-containers
     - policyName: disallow-selinux
       ruleNames:
         - selinux-type
@@ -94,10 +84,92 @@ spec:
       ruleNames:
         - restricted-volumes
         - autogen-restricted-volumes
+    {{- if index .Values "security-profiles-operator" "selinux" "enable" }}
+    - policyName: disallow-capabilities-strict
+      ruleNames:
+        - require-drop-all
+        - autogen-require-drop-all
+    - policyName: disallow-privilege-escalation
+      ruleNames:
+        - privilege-escalation
+        - autogen-privilege-escalation
+    - policyName: disallow-privileged-containers
+      ruleNames:
+        - privileged-containers
+        - autogen-privileged-containers
+    {{- end }}
+    {{- if index .Values "security-profiles-operator" "enableLogEnricher" }}
+    - policyName: disallow-capabilities-strict
+      ruleNames:
+        - require-drop-all
+        - autogen-require-drop-all
     - policyName: disallow-host-namespaces
       ruleNames:
         - host-namespaces
         - autogen-host-namespaces
+    - policyName: disallow-privilege-escalation
+      ruleNames:
+        - privilege-escalation
+        - autogen-privilege-escalation
+    - policyName: disallow-privileged-containers
+      ruleNames:
+        - privileged-containers
+        - autogen-privileged-containers
+    {{- end }}
+    {{- if index .Values "security-profiles-operator" "enableJsonEnricher" }}
+    - policyName: disallow-capabilities
+      ruleNames:
+        - adding-capabilities
+        - autogen-adding-capabilities
+    - policyName: disallow-capabilities-strict
+      ruleNames:
+        - require-drop-all
+        - autogen-require-drop-all
+    - policyName: disallow-host-namespaces
+      ruleNames:
+        - host-namespaces
+        - autogen-host-namespaces
+    - policyName: disallow-privilege-escalation
+      ruleNames:
+        - privilege-escalation
+        - autogen-privilege-escalation
+    - policyName: disallow-privileged-containers
+      ruleNames:
+        - privileged-containers
+        - autogen-privileged-containers
+    {{- end }}
+    {{- if index .Values "security-profiles-operator" "enableAppArmor" }}
+    - policyName: disallow-host-namespaces
+      ruleNames:
+        - host-namespaces
+        - autogen-host-namespaces
+    - policyName: disallow-privilege-escalation
+      ruleNames:
+        - privilege-escalation
+        - autogen-privilege-escalation
+    - policyName: disallow-privileged-containers
+      ruleNames:
+        - privileged-containers
+        - autogen-privileged-containers
+    {{- end }}
+    {{- if index .Values "security-profiles-operator" "enableBpfRecorder" }}
+    - policyName: disallow-capabilities-strict
+      ruleNames:
+        - require-drop-all
+        - autogen-require-drop-all
+    - policyName: disallow-host-namespaces
+      ruleNames:
+        - host-namespaces
+        - autogen-host-namespaces
+    - policyName: disallow-privilege-escalation
+      ruleNames:
+        - privilege-escalation
+        - autogen-privilege-escalation
+    - policyName: disallow-privileged-containers
+      ruleNames:
+        - privileged-containers
+        - autogen-privileged-containers
+    {{- end }}
   match:
     any:
       - resources:
@@ -108,4 +180,4 @@ spec:
             - {{ .Release.Namespace }}
           names:
             - spod*
-{{- end }}
+{{- end -}}
