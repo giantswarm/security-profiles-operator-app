@@ -180,4 +180,58 @@ spec:
             - {{ .Release.Namespace }}
           names:
             - spod*
+{{- if index .Values "security-profiles-operator" "selinux" "enable" }}
+---
+apiVersion: kyverno.io/v2
+kind: PolicyException
+metadata:
+  name: security-profiles-operator-selinux-policy-reload-exceptions
+  namespace: {{ .Values.kyvernoPolicyExceptions.namespace | default .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": "pre-install,pre-upgrade"
+spec:
+  exceptions:
+    - policyName: disallow-capabilities-strict
+      ruleNames:
+        - require-drop-all
+        - autogen-require-drop-all
+    - policyName: disallow-host-path
+      ruleNames:
+        - host-path
+        - autogen-host-path
+    - policyName: disallow-privilege-escalation
+      ruleNames:
+        - privilege-escalation
+        - autogen-privilege-escalation
+    - policyName: disallow-privileged-containers
+      ruleNames:
+        - privileged-containers
+        - autogen-privileged-containers
+    - policyName: disallow-selinux
+      ruleNames:
+        - selinux-type
+        - autogen-selinux-type
+    - policyName: require-run-as-nonroot
+      ruleNames:
+        - run-as-non-root
+        - autogen-run-as-non-root
+    - policyName: restrict-seccomp-strict
+      ruleNames:
+        - check-seccomp-strict
+        - autogen-check-seccomp-strict
+    - policyName: restrict-volume-types
+      ruleNames:
+        - restricted-volumes
+        - autogen-restricted-volumes
+  match:
+    any:
+      - resources:
+          kinds:
+            - Pod
+            - Job
+          namespaces:
+            - {{ .Release.Namespace }}
+          names:
+            - selinux-policy-reload-*
+{{- end -}}
 {{- end -}}
