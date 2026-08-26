@@ -4,14 +4,14 @@ kyvernoPolicyExceptions:
 
 # @schema $ref: charts/security-profiles-operator/values.schema.json
 # @schema additionalProperties: true
-# -- Values passed through to the upstream chart. For available options, see the [upstream values.yaml](https://github.com/kubernetes-sigs/security-profiles-operator/blob/v1.0.0/deploy/helm/values.yaml).
+# -- Values passed through to the upstream chart. For available options, see the [upstream values.yaml](https://github.com/kubernetes-sigs/security-profiles-operator/blob/v1.0.1/deploy/helm/values.yaml).
 # @default -- See [values.yaml](./values.yaml#L17)
 security-profiles-operator:
   # @schema hidden
   spoImage:
     registry: registry.k8s.io
     repository: security-profiles-operator/security-profiles-operator
-    tag: v1.0.0
+    tag: v1.0.1
 
   # @schema hidden
   selinux:

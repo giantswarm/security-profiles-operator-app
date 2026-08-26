@@ -7,7 +7,7 @@ directories:
         git:
           url: https://github.com/kubernetes-sigs/security-profiles-operator
           # renovate: datasource=github-releases depName=kubernetes-sigs/security-profiles-operator
-          ref: v1.0.0
+          ref: v1.0.1
         includePaths:
           - deploy/helm/**/*
         newRootPath: deploy/helm
