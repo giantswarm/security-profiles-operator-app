@@ -394,6 +394,9 @@
                         "enable": {
                             "type": "boolean"
                         },
+                        "enableRawSelinuxProfiles": {
+                            "type": "boolean"
+                        },
                         "options": {
                             "type": "object",
                             "additionalProperties": false,
@@ -405,6 +408,9 @@
                                     }
                                 }
                             }
+                        },
+                        "typeTag": {
+                            "type": "string"
                         }
                     }
                 },
