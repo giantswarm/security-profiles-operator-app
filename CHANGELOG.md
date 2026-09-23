@@ -16,5 +16,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app.giantswarm.io` label group was changed to `application.giantswarm.io`
 - Updated `security-profiles-operator` to upstream version `v1.0.1`.
 - Updated `refpolicy` to upstream version `RELEASE_2_20260616`.
+- Updated `refpolicy` to upstream version `RELEASE_2_20260922`.
 
 [Unreleased]: https://github.com/giantswarm/security-profiles-operator-app/tree/main
