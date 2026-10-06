@@ -15,8 +15,8 @@ spec:
   template:
     metadata:
       annotations:
-        seccomp.security.alpha.kubernetes.io/pod: runtime/default
         {{- include "security-profiles-operator.annotations" . | nindent 8 }}
+        openshift.io/required-scc: restricted-v2
       labels:
         {{- include "security-profiles-operator.selectorLabels" . | nindent 8 }}
     spec:
@@ -24,30 +24,88 @@ spec:
       - args:
         - manager
         env:
+        # The selinuxd images are pinned by digest when one is set, the tag
+        # only applies without a digest. Keep the list in sync with
+        # deploy/kustomize-deployment/manager_deployment.yaml.
         - name: RELATED_IMAGE_SELINUXD
-          value: {{ .Values.selinuxdImage.default.registry }}/{{ .Values.selinuxdImage.default.repository }}:{{ .Values.selinuxdImage.default.tag }}
+          value: {{ include "security-profiles-operator.selinuxdImage" .Values.selinuxdImage.default }}
         - name: RELATED_IMAGE_SELINUXD_EL8
-          value: {{ .Values.selinuxdImage.el8.registry }}/{{ .Values.selinuxdImage.el8.repository }}:{{ .Values.selinuxdImage.el8.tag }}
+          value: {{ include "security-profiles-operator.selinuxdImage" .Values.selinuxdImage.el8 }}
         - name: RELATED_IMAGE_SELINUXD_EL9
-          value: {{ .Values.selinuxdImage.el9.registry }}/{{ .Values.selinuxdImage.el9.repository }}:{{ .Values.selinuxdImage.el9.tag }}
+          value: {{ include "security-profiles-operator.selinuxdImage" .Values.selinuxdImage.el9 }}
         - name: RELATED_IMAGE_SELINUXD_FEDORA
-          value: {{ .Values.selinuxdImage.fedora.registry }}/{{ .Values.selinuxdImage.fedora.repository }}:{{ .Values.selinuxdImage.fedora.tag }}
+          value: {{ include "security-profiles-operator.selinuxdImage" .Values.selinuxdImage.fedora }}
         - name: OPERATOR_NAMESPACE
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
+        # Empty without OLM, which means all namespaces.
+        - name: WATCH_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.annotations['olm.targetNamespaces']
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: KUBELET_DIR
+          value: {{ .Values.kubeletDir | default "/var/lib/kubelet" | quote }}
+        {{- if .Values.restrictToNamespace }}
+        - name: RESTRICT_TO_NAMESPACE
+          value: {{ .Values.restrictToNamespace | quote }}
+        {{- end }}
         image: {{ .Values.spoImage.registry }}/{{ .Values.spoImage.repository }}:{{ .Values.spoImage.tag }}
-        imagePullPolicy: Always
+        imagePullPolicy: {{ .Values.spoImage.pullPolicy | default "Always" }}
         name: {{ .Chart.Name }}
+        ports:
+        - name: health
+          containerPort: 8085
+          protocol: TCP
+        # Startup is gated separately, so that a slow start does not make the
+        # liveness probe restart a manager which is still coming up. The budget
+        # is generous because the health server only binds inside
+        # `Manager.Start`, after up to two ten second API calls which detect
+        # OpenShift and fetch its TLS profile.
+        startupProbe:
+          httpGet:
+            path: /healthz
+            port: health
+          failureThreshold: 30
+          periodSeconds: 3
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: health
+          failureThreshold: 3
+          periodSeconds: 10
+        # The manager serves the health endpoints before it waits for its
+        # informer caches, so only readiness can tell a working operator from
+        # one which never started a single controller.
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: health
+          failureThreshold: 3
+          periodSeconds: 10
+          # Above the timeout the check itself uses, so that it reports an
+          # unsynced cache rather than being cut off before it can.
+          timeoutSeconds: 6
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
         securityContext:
           allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
           readOnlyRootFilesystem: true
+          runAsNonRoot: true
       {{- with .Values.podSecurityContext }}
       securityContext:
       {{- toYaml . | nindent 8 }}
       {{- end }}
+      # The static resources create this service account and bind the RBAC
+      # rules of the operator to it.
       serviceAccountName: security-profiles-operator
       {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -56,6 +114,17 @@ spec:
       {{- with .Values.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+      {{- range . }}
+      {{- $constraint := . }}
+      {{- if not .labelSelector }}
+      {{- $selector := dict "matchLabels" (include "security-profiles-operator.selectorLabels" $ | fromYaml) }}
+      {{- $constraint = merge (dict "labelSelector" $selector) . }}
+      {{- end }}
+      - {{ toYaml $constraint | indent 8 | trim }}
+      {{- end }}
       {{- end }}
       tolerations:
       - effect: NoSchedule

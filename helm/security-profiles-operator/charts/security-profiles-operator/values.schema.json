@@ -11,12 +11,6 @@
             "properties": {
                 "enabled": {
                     "type": "boolean"
-                },
-                "maxReplicas": {
-                    "type": "integer"
-                },
-                "minReplicas": {
-                    "type": "integer"
                 }
             },
             "additionalProperties": false
@@ -112,6 +106,9 @@
                 "null"
             ]
         },
+        "kubeletDir": {
+            "type": "string"
+        },
         "nameOverride": {
             "type": "string"
         },
@@ -119,8 +116,16 @@
             "type": "object",
             "additionalProperties": false
         },
-        "podAnnotations": {
+        "podDisruptionBudget": {
             "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "minAvailable": {
+                    "type": "integer"
+                }
+            },
             "additionalProperties": false
         },
         "podSecurityContext": {
@@ -175,6 +180,9 @@
             },
             "additionalProperties": false
         },
+        "restrictToNamespace": {
+            "type": "string"
+        },
         "selinux": {
             "type": "object",
             "properties": {
@@ -211,6 +219,9 @@
                 "default": {
                     "type": "object",
                     "properties": {
+                        "digest": {
+                            "type": "string"
+                        },
                         "registry": {
                             "type": "string"
                         },
@@ -226,6 +237,9 @@
                 "el8": {
                     "type": "object",
                     "properties": {
+                        "digest": {
+                            "type": "string"
+                        },
                         "registry": {
                             "type": "string"
                         },
@@ -241,6 +255,9 @@
                 "el9": {
                     "type": "object",
                     "properties": {
+                        "digest": {
+                            "type": "string"
+                        },
                         "registry": {
                             "type": "string"
                         },
@@ -256,6 +273,9 @@
                 "fedora": {
                     "type": "object",
                     "properties": {
+                        "digest": {
+                            "type": "string"
+                        },
                         "registry": {
                             "type": "string"
                         },
@@ -271,25 +291,12 @@
             },
             "additionalProperties": false
         },
-        "serviceAccount": {
-            "type": "object",
-            "properties": {
-                "annotations": {
-                    "type": "object",
-                    "additionalProperties": false
-                },
-                "create": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                }
-            },
-            "additionalProperties": false
-        },
         "spoImage": {
             "type": "object",
             "properties": {
+                "pullPolicy": {
+                    "type": "string"
+                },
                 "registry": {
                     "type": "string"
                 },
@@ -305,8 +312,35 @@
         "tolerations": {
             "type": "array"
         },
+        "topologySpreadConstraints": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "maxSkew": {
+                        "type": "integer"
+                    },
+                    "topologyKey": {
+                        "type": "string"
+                    },
+                    "whenUnsatisfiable": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
         "verbosity": {
             "type": "integer"
+        },
+        "webhook": {
+            "type": "object",
+            "properties": {
+                "tolerations": {
+                    "type": "array"
+                }
+            },
+            "additionalProperties": false
         }
     },
     "additionalProperties": false,

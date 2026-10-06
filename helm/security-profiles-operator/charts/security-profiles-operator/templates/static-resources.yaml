@@ -73,11 +73,12 @@ rules:
   - list
   - watch
 - apiGroups:
-  - ""
+  - admissionregistration.k8s.io
+  resourceNames:
+  - spo-mutating-webhook-configuration
   resources:
-  - services
+  - mutatingwebhookconfigurations
   verbs:
-  - create
   - get
   - list
   - patch
@@ -87,57 +88,54 @@ rules:
   - admissionregistration.k8s.io
   resources:
   - mutatingwebhookconfigurations
+  - validatingadmissionpolicies
+  - validatingadmissionpolicybindings
   - validatingwebhookconfigurations
   verbs:
   - create
+- apiGroups:
+  - admissionregistration.k8s.io
+  resourceNames:
+  - spo-recording-profiles
+  resources:
+  - validatingadmissionpolicies
+  - validatingadmissionpolicybindings
+  verbs:
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - admissionregistration.k8s.io
+  resourceNames:
+  - spo-validating-webhook-configuration
+  resources:
+  - validatingwebhookconfigurations
+  verbs:
   - get
   - list
   - patch
   - update
   - watch
 - apiGroups:
-  - apps
+  - authentication.k8s.io
   resources:
-  - daemonsets
+  - tokenreviews
   verbs:
   - create
-  - get
-  - list
-  - patch
-  - update
-  - watch
 - apiGroups:
-  - apps
+  - authorization.k8s.io
   resources:
-  - daemonsets/finalizers
-  verbs:
-  - delete
-  - get
-  - patch
-  - update
-- apiGroups:
-  - apps
-  resources:
-  - deployments
+  - subjectaccessreviews
   verbs:
   - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
 - apiGroups:
-  - cert-manager.io
+  - config.openshift.io
   resources:
-  - certificates
-  - issuers
+  - apiservers
   verbs:
-  - create
   - get
   - list
-  - patch
-  - update
   - watch
 - apiGroups:
   - config.openshift.io
@@ -145,57 +143,44 @@ rules:
   - clusteroperators
   verbs:
   - get
-  - list
-  - watch
 - apiGroups:
-  - monitoring.coreos.com
+  - events.k8s.io
   resources:
-  - servicemonitors
+  - events
   verbs:
   - create
-  - get
-  - list
   - patch
   - update
-  - watch
 - apiGroups:
   - security-profiles-operator.x-k8s.io
   resources:
-  - profilerecordings
-  - profilerecordings/finalizers
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - security-profiles-operator.x-k8s.io
-  resources:
-  - rawselinuxprofiles
+  - apparmorprofiles
+  - seccompprofiles
+  - selinuxprofiles
   verbs:
   - create
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - security-profiles-operator.x-k8s.io
-  resources:
-  - rawselinuxprofiles/finalizers
-  - seccompprofiles/finalizers
-  - securityprofilesoperatordaemons/finalizers
-  - selinuxprofiles/finalizers
-  verbs:
   - delete
   - get
+  - list
   - patch
   - update
+  - watch
 - apiGroups:
   - security-profiles-operator.x-k8s.io
   resources:
+  - apparmorprofiles/finalizers
+  - apparmorprofiles/status
+  - profilebindings/finalizers
+  - profilebindings/status
+  - profilerecordings/finalizers
+  - profilerecordings/status
+  - rawselinuxprofiles/finalizers
   - rawselinuxprofiles/status
+  - seccompprofiles/finalizers
   - seccompprofiles/status
+  - securityprofilesoperatordaemons/finalizers
   - securityprofilesoperatordaemons/status
+  - selinuxprofiles/finalizers
   - selinuxprofiles/status
   verbs:
   - get
@@ -204,12 +189,21 @@ rules:
 - apiGroups:
   - security-profiles-operator.x-k8s.io
   resources:
-  - seccompprofiles
-  - selinuxprofiles
+  - profilebindings
+  - profilerecordings
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - security-profiles-operator.x-k8s.io
+  resources:
+  - rawselinuxprofiles
+  - securityprofilesoperatordaemons
   verbs:
   - create
-  - delete
-  - deletecollection
   - get
   - list
   - patch
@@ -223,16 +217,6 @@ rules:
   - delete
   - get
   - list
-  - watch
-- apiGroups:
-  - security-profiles-operator.x-k8s.io
-  resources:
-  - securityprofilesoperatordaemons
-  verbs:
-  - create
-  - get
-  - list
-  - update
   - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -249,6 +233,49 @@ metadata:
   namespace: '{{ .Release.Namespace }}'
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  - deployments
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - daemonsets/finalizers
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - cert-manager.io
+  resources:
+  - certificates
+  - issuers
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - coordination.k8s.io
   resources:
   - leases
@@ -257,7 +284,31 @@ rules:
   - get
   - update
 - apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - servicemonitors
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - policy
+  resources:
+  - poddisruptionbudgets
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - security.openshift.io
+  resourceNames:
+  - restricted-v2
   resources:
   - securitycontextconstraints
   verbs:
@@ -296,7 +347,6 @@ rules:
 - apiGroups:
   - authentication.k8s.io
   resources:
-  - subjectaccessreviews
   - tokenreviews
   verbs:
   - create
@@ -307,20 +357,33 @@ rules:
   verbs:
   - create
 - apiGroups:
-  - batch
+  - config.openshift.io
   resources:
-  - jobs
+  - apiservers
   verbs:
-  - create
-  - delete
   - get
   - list
   - watch
+- apiGroups:
+  - config.openshift.io
+  resources:
+  - clusteroperators
+  verbs:
+  - get
+- apiGroups:
+  - events.k8s.io
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+  - update
 - apiGroups:
   - security-profiles-operator.x-k8s.io
   resources:
   - apparmorprofiles
   - rawselinuxprofiles
+  - seccompprofiles
   - selinuxprofiles
   verbs:
   - create
@@ -333,21 +396,13 @@ rules:
   - security-profiles-operator.x-k8s.io
   resources:
   - apparmorprofiles/finalizers
-  - rawselinuxprofiles/finalizers
-  - seccompprofiles/finalizers
-  - selinuxprofiles/finalizers
-  verbs:
-  - delete
-  - get
-  - patch
-  - update
-- apiGroups:
-  - security-profiles-operator.x-k8s.io
-  resources:
   - apparmorprofiles/status
+  - rawselinuxprofiles/finalizers
   - rawselinuxprofiles/status
+  - seccompprofiles/finalizers
   - seccompprofiles/status
   - securityprofilenodestatuses/status
+  - selinuxprofiles/finalizers
   - selinuxprofiles/status
   verbs:
   - get
@@ -366,7 +421,6 @@ rules:
 - apiGroups:
   - security-profiles-operator.x-k8s.io
   resources:
-  - seccompprofiles
   - securityprofilenodestatuses
   verbs:
   - create
@@ -399,7 +453,26 @@ metadata:
   namespace: '{{ .Release.Namespace }}'
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - secrets
+  verbs:
+  - get
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - watch
+- apiGroups:
   - security.openshift.io
+  resourceNames:
+  - privileged
   resources:
   - securitycontextconstraints
   verbs:
@@ -429,50 +502,52 @@ rules:
   - pods
   verbs:
   - get
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+- apiGroups:
+  - config.openshift.io
+  resources:
+  - apiservers
+  verbs:
+  - get
   - list
   - watch
+- apiGroups:
+  - config.openshift.io
+  resources:
+  - clusteroperators
+  verbs:
+  - get
+- apiGroups:
+  - events.k8s.io
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+  - update
 - apiGroups:
   - security-profiles-operator.x-k8s.io
   resources:
   - apparmorprofiles
-  - rawselinuxprofiles
+  - profilebindings
+  - profilerecordings
   - seccompprofiles
   - selinuxprofiles
   verbs:
   - get
   - list
   - watch
-- apiGroups:
-  - security-profiles-operator.x-k8s.io
-  resources:
-  - profilebindings
-  - profilerecordings
-  verbs:
-  - create
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - security-profiles-operator.x-k8s.io
-  resources:
-  - profilebindings/finalizers
-  - profilerecordings/finalizers
-  verbs:
-  - delete
-  - get
-  - patch
-  - update
-- apiGroups:
-  - security-profiles-operator.x-k8s.io
-  resources:
-  - profilebindings/status
-  - profilerecordings/status
-  verbs:
-  - get
-  - patch
-  - update
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -504,7 +579,15 @@ rules:
   - patch
   - update
 - apiGroups:
+  - security-profiles-operator.x-k8s.io
+  resources:
+  - securityprofilesoperatordaemons
+  verbs:
+  - get
+- apiGroups:
   - security.openshift.io
+  resourceNames:
+  - restricted-v2
   resources:
   - securitycontextconstraints
   verbs:
@@ -698,6 +781,85 @@ metadata:
   namespace: '{{ .Release.Namespace }}'
 type: kubernetes.io/service-account-token
 ---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  annotations:
+    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
+  labels:
+    app: security-profiles-operator
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: security-profiles-operator
+  name: spo-spod-jobs
+spec:
+  failurePolicy: Fail
+  matchConditions:
+  - expression: request.userInfo.username == 'system:serviceaccount:' + request.namespace
+      + ':spod'
+    name: spod-service-account
+  matchConstraints:
+    resourceRules:
+    - apiGroups:
+      - batch
+      apiVersions:
+      - '*'
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - jobs
+  validations:
+  - expression: has(variables.podSpec.serviceAccountName) && variables.podSpec.serviceAccountName
+      == 'spod'
+    message: Jobs of the spod service account have to run as the spod service account
+    reason: Forbidden
+  - expression: has(variables.podSpec.nodeName) && variables.podSpec.nodeName != ''
+      && (size(variables.requestNodes) == 0 || variables.podSpec.nodeName in variables.requestNodes)
+    message: Jobs of the spod service account have to run on the node of the requesting
+      pod
+    reason: Forbidden
+  - expression: '!(has(variables.podSpec.hostNetwork) && variables.podSpec.hostNetwork)
+      && !(has(variables.podSpec.hostPID) && variables.podSpec.hostPID) && !(has(variables.podSpec.hostIPC)
+      && variables.podSpec.hostIPC)'
+    message: Jobs of the spod service account must not use host namespaces
+    reason: Forbidden
+  - expression: size(variables.podSpec.containers) == 1 && (!has(variables.podSpec.initContainers)
+      || size(variables.podSpec.initContainers) == 0) && variables.podSpec.containers.all(c,
+      !has(c.envFrom) && (!has(c.env) || c.env.all(e, !has(e.valueFrom))))
+    message: Jobs of the spod service account have to run a single container without
+      environment from secrets or config maps
+    reason: Forbidden
+  - expression: '!has(variables.podSpec.volumes) || variables.podSpec.volumes.all(v,
+      has(v.hostPath) && v.hostPath.path in [''/sys/fs/selinux'', ''/etc/selinux'',
+      ''/var/lib/selinux''] && has(v.hostPath.type) && v.hostPath.type == ''Directory'')'
+    message: Jobs of the spod service account may only mount the SELinux host paths
+      as directories
+    reason: Forbidden
+  variables:
+  - expression: object.spec.template.spec
+    name: podSpec
+  - expression: 'has(request.userInfo.extra) && ''authentication.kubernetes.io/node-name''
+      in request.userInfo.extra ? request.userInfo.extra[''authentication.kubernetes.io/node-name'']
+      : []'
+    name: requestNodes
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  annotations:
+    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
+  labels:
+    app: security-profiles-operator
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: security-profiles-operator
+  name: spo-spod-jobs
+spec:
+  policyName: spo-spod-jobs
+  validationActions:
+  - Deny
+---
 apiVersion: v1
 data:
   bpf-recorder.json: |-
@@ -742,6 +904,9 @@ data:
             "capget",
             "capset",
             "chdir",
+            "clock_getres",
+            "clock_gettime",
+            "clock_gettime64",
             "clone",
             "clone3",
             "close",
@@ -753,6 +918,8 @@ data:
             "epoll_wait",
             "eventfd2",
             "execve",
+            "exit",
+            "exit_group",
             "faccessat2",
             "fchownat",
             "fcntl",
@@ -770,6 +937,7 @@ data:
             "getsockname",
             "getsockopt",
             "gettid",
+            "gettimeofday",
             "ioctl",
             "listen",
             "lseek",
@@ -781,6 +949,7 @@ data:
             "munmap",
             "nanosleep",
             "newfstatat",
+            "open_by_handle_at",
             "openat",
             "perf_event_open",
             "prctl",
@@ -808,7 +977,9 @@ data:
             "statfs",
             "statx",
             "tgkill",
+            "time",
             "uname",
+            "unlinkat",
             "write"
           ],
           "action": "SCMP_ACT_ALLOW"
@@ -829,7 +1000,9 @@ data:
           allowedCapabilities:
           - bpf
           - chown
+          - dac_read_search
           - perfmon
+          - sys_ptrace
           - sys_resource
         executable:
           allowedExecutables:
@@ -849,13 +1022,15 @@ data:
           - /var/run/secrets/kubernetes.io/serviceaccount/**
           - /var/run/secrets/kubernetes.io/serviceaccount/**
           readWritePaths:
-          - "ptrace (read),\n# ugly template injection hack"
           - /var/run/grpc/bpf-recorder.sock
           - /var/run/grpc/metrics.sock
         network:
           allowedProtocols:
             allowTcp: true
             allowUdp: true
+        ptrace:
+          allowedAccess:
+          - read
       state: Enabled
   json-enricher-log-volume-mount-path: /data/logs/jsonenricher
   json-enricher-log-volume-source.json: |-
@@ -905,6 +1080,9 @@ data:
             "capget",
             "capset",
             "chdir",
+            "clock_getres",
+            "clock_gettime",
+            "clock_gettime64",
             "clone",
             "clone3",
             "close",
@@ -916,9 +1094,11 @@ data:
             "execve",
             "exit_group",
             "faccessat2",
+            "fchmodat",
             "fcntl",
             "fstat",
             "fstatfs",
+            "fsync",
             "futex",
             "getcwd",
             "getdents64",
@@ -930,6 +1110,7 @@ data:
             "getsockname",
             "getsockopt",
             "gettid",
+            "gettimeofday",
             "inotify_add_watch",
             "inotify_init1",
             "listen",
@@ -947,6 +1128,8 @@ data:
             "prlimit64",
             "read",
             "readlinkat",
+            "renameat",
+            "renameat2",
             "rseq",
             "rt_sigaction",
             "rt_sigprocmask",
@@ -958,6 +1141,7 @@ data:
             "set_tid_address",
             "setgid",
             "setgroups",
+            "setns",
             "setsockopt",
             "setuid",
             "sigaltstack",
@@ -966,6 +1150,7 @@ data:
             "statfs",
             "statx",
             "tgkill",
+            "time",
             "uname",
             "unshare",
             "unlinkat",
@@ -975,18 +1160,18 @@ data:
         }
       ]
     }
-  selinuxd-image-mapping.json: |-
+  selinuxd-image-mapping.json: |
     [
         {
-            "regex": "(.*)(CoreOS).*(41[0-2]\\.[0-9]+)\\..*|(.*)(Red Hat Enterprise Linux release)\\s+8\\.[0-9]+",
+            "regex": "(.*)(CoreOS).*(41[0-2]\\.[0-9]+)\\..*|(.*)(Red Hat Enterprise Linux)(\\s+release)?\\s+8\\.[0-9]+",
             "imageFromVar": "RELATED_IMAGE_SELINUXD_EL8"
         },
         {
-            "regex": "(.*)(CoreOS).*10\\.[0-9]+\\..*|(.*)(Red Hat Enterprise Linux CoreOS)\\s+10\\.[0-9]+\\..*|(.*)(Red Hat Enterprise Linux release)\\s+10\\.[0-9]+",
+            "regex": "(.*)(CoreOS).*10\\.[0-9]+\\..*|(.*)(Red Hat Enterprise Linux CoreOS)\\s+10\\.[0-9]+\\..*|(.*)(Red Hat Enterprise Linux)(\\s+release)?\\s+10\\.[0-9]+",
             "imageFromVar": "RELATED_IMAGE_SELINUXD_EL10"
         },
         {
-            "regex": "(.*)(CoreOS).*(41[3-9]\\.[0-9]+)\\..*|(.*)(CoreOS)\\s+9\\.[0-9]+\\..*|(.*)(Red Hat Enterprise Linux release)\\s+9\\.[0-9]+",
+            "regex": "(.*)(CoreOS).*(41[3-9]\\.[0-9]+)\\..*|(.*)(CoreOS)\\s+9\\.[0-9]+\\..*|(.*)(Red Hat Enterprise Linux)(\\s+release)?\\s+9\\.[0-9]+",
             "imageFromVar": "RELATED_IMAGE_SELINUXD_EL9"
         },
         {
@@ -1072,6 +1257,7 @@ data:
           - mac_admin
           - sys_admin
           - sys_chroot
+          - sys_ptrace
         executable:
           allowedExecutables:
           - /security-profiles-operator
@@ -1091,7 +1277,6 @@ data:
           - /sys/module/apparmor/parameters/enabled
           - /sys/devices/system/cpu/possible
           readWritePaths:
-          - "ptrace (read),  # ugly template injection hack"
           - /var/run/grpc/metrics.sock
           - /tmp/aa_profile_bin_*
           - /etc/apparmor.d/**
@@ -1102,6 +1287,9 @@ data:
           allowedProtocols:
             allowTcp: true
             allowUdp: true
+        ptrace:
+          allowedAccess:
+          - read
       state: Enabled
 kind: ConfigMap
 metadata:
