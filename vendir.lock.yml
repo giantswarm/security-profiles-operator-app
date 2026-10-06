@@ -2,10 +2,10 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - git:
-      commitTitle: Release v1.0.1...
-      sha: c909036d1dcb5f6317e72dfac7a0334acbbf9df7
+      commitTitle: Bump version to v1.1.1 for release...
+      sha: 530ad36f753f370091100cc0fb7ebeb24d4199f7
       tags:
-      - v1.0.1
+      - v1.1.1
     path: .
   path: helm/security-profiles-operator/charts/security-profiles-operator
 - contents:
