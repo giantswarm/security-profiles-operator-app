@@ -1,0 +1,5 @@
+# The chart's PolicyExceptions go to the giantswarm namespace, which the
+# kind cluster of the chart tests does not have. app-test-suite creates
+# policy-exceptions before the install, so the hooks land there.
+kyvernoPolicyExceptions:
+  namespace: policy-exceptions

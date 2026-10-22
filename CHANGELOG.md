@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Chart tests run on app-test-suite 1.x: `.ats/main.yaml` drops the 0.x `smoke-tests-cluster-type` and `upgrade-tests-cluster-type` keys, which 1.x rejects, and the tests install the PolicyExceptions into the `policy-exceptions` namespace the kind cluster has.
 - The `helm.sh/chart` label is valid for long chart versions: the 63-character cut trims the whole trailing run of `-`, `.` and `_`.
 
 ### Added
