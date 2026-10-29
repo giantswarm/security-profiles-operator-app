@@ -11,12 +11,6 @@
             "properties": {
                 "enabled": {
                     "type": "boolean"
-                },
-                "maxReplicas": {
-                    "type": "integer"
-                },
-                "minReplicas": {
-                    "type": "integer"
                 }
             },
             "additionalProperties": false
@@ -98,8 +92,8 @@
         "enableProfiling": {
             "type": "boolean"
         },
-        "enableSelinux": {
-            "type": "boolean"
+        "extraEnv": {
+            "type": "array"
         },
         "fullnameOverride": {
             "type": "string"
@@ -112,15 +106,38 @@
                 "null"
             ]
         },
+        "imagePullSecrets": {
+            "type": "array"
+        },
+        "kubeletDir": {
+            "type": "string"
+        },
         "nameOverride": {
             "type": "string"
         },
         "nodeSelector": {
             "type": "object",
+            "properties": {
+                "kubernetes.io/os": {
+                    "type": "string"
+                }
+            },
             "additionalProperties": false
         },
         "podAnnotations": {
             "type": "object",
+            "additionalProperties": false
+        },
+        "podDisruptionBudget": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "minAvailable": {
+                    "type": "integer"
+                }
+            },
             "additionalProperties": false
         },
         "podSecurityContext": {
@@ -141,6 +158,9 @@
                 }
             },
             "additionalProperties": true
+        },
+        "priorityClassName": {
+            "type": "string"
         },
         "replicaCount": {
             "type": "integer"
@@ -174,6 +194,9 @@
                 }
             },
             "additionalProperties": false
+        },
+        "restrictToNamespace": {
+            "type": "string"
         },
         "selinux": {
             "type": "object",
@@ -211,6 +234,9 @@
                 "default": {
                     "type": "object",
                     "properties": {
+                        "digest": {
+                            "type": "string"
+                        },
                         "registry": {
                             "type": "string"
                         },
@@ -226,6 +252,9 @@
                 "el8": {
                     "type": "object",
                     "properties": {
+                        "digest": {
+                            "type": "string"
+                        },
                         "registry": {
                             "type": "string"
                         },
@@ -241,6 +270,9 @@
                 "el9": {
                     "type": "object",
                     "properties": {
+                        "digest": {
+                            "type": "string"
+                        },
                         "registry": {
                             "type": "string"
                         },
@@ -256,6 +288,9 @@
                 "fedora": {
                     "type": "object",
                     "properties": {
+                        "digest": {
+                            "type": "string"
+                        },
                         "registry": {
                             "type": "string"
                         },
@@ -271,25 +306,15 @@
             },
             "additionalProperties": false
         },
-        "serviceAccount": {
-            "type": "object",
-            "properties": {
-                "annotations": {
-                    "type": "object",
-                    "additionalProperties": false
-                },
-                "create": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                }
-            },
-            "additionalProperties": false
-        },
         "spoImage": {
             "type": "object",
             "properties": {
+                "digest": {
+                    "type": "string"
+                },
+                "pullPolicy": {
+                    "type": "string"
+                },
                 "registry": {
                     "type": "string"
                 },
@@ -302,11 +327,48 @@
             },
             "additionalProperties": false
         },
+        "spod": {
+            "type": "object",
+            "properties": {
+                "spec": {
+                    "type": "object",
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
         "tolerations": {
             "type": "array"
         },
+        "topologySpreadConstraints": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "maxSkew": {
+                        "type": "integer"
+                    },
+                    "topologyKey": {
+                        "type": "string"
+                    },
+                    "whenUnsatisfiable": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
         "verbosity": {
             "type": "integer"
+        },
+        "webhook": {
+            "type": "object",
+            "properties": {
+                "tolerations": {
+                    "type": "array"
+                }
+            },
+            "additionalProperties": false
         }
     },
     "additionalProperties": false,
