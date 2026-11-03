@@ -17,6 +17,8 @@ security-profiles-operator:
       registry: gsoci.azurecr.io
       repository: giantswarm/selinuxd
       tag: v0.0.0-cddbd306c48ee8d19b8fb07b2acda1ee99cb3f1d9c3988f828d24b4f2de5ad3c
+      # Clears the upstream digest, which takes precedence over the tag
+      digest: ""
 
   enableLogEnricher: true
 
