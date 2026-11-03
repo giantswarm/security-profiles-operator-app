@@ -7,11 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- Chart tests run on app-test-suite 1.x: `.ats/main.yaml` drops the 0.x `smoke-tests-cluster-type` and `upgrade-tests-cluster-type` keys, which 1.x rejects, and the tests install the PolicyExceptions into the `policy-exceptions` namespace the kind cluster has.
-- The `helm.sh/chart` label is valid for long chart versions: the 63-character cut trims the whole trailing run of `-`, `.` and `_`.
-
 ### Added
 
 - Added Kyverno PolicyExceptions
@@ -21,5 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app.giantswarm.io` label group was changed to `application.giantswarm.io`
 - Updated `security-profiles-operator` to upstream version `v1.0.1`.
 - Updated `refpolicy` to upstream version `RELEASE_2_20260616`.
+- Updated `security-profiles-operator` to upstream version `v1.1.2`.
+
+### Fixed
+
+- Chart tests run on app-test-suite 1.x: `.ats/main.yaml` drops the 0.x `smoke-tests-cluster-type` and `upgrade-tests-cluster-type` keys, which 1.x rejects, and the tests install the PolicyExceptions into the `policy-exceptions` namespace the kind cluster has.
+- The `helm.sh/chart` label is valid for long chart versions: the 63-character cut trims the whole trailing run of `-`, `.` and `_`.
 
 [Unreleased]: https://github.com/giantswarm/security-profiles-operator-app/tree/main
