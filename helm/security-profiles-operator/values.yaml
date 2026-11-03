@@ -48,8 +48,3 @@ security-profiles-operator:
       - key: ebs.csi.aws.com/agent-not-ready
         effect: NoExecute
         operator: Exists
-
-  podSecurityContext:
-    runAsNonRoot: true
-    seccompProfile:
-      type: RuntimeDefault
