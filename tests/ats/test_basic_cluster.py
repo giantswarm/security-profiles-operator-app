@@ -37,9 +37,13 @@ def chart_deployed(kube_cluster: Cluster, chart_path: str) -> None:
     ns = pykube.Namespace(kube_cluster.kube_client, {"metadata": {"name": "policy-exceptions"}})
     if not ns.exists():
         ns.create()
+    # ATS passes the chart path relative to its working directory, the repository
+    # root, but runs pytest in tests/ats.
+    repo_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
     subprocess.run(
         [
-            "helm", "upgrade", "--install", "security-profiles-operator", chart_path,
+            "helm", "upgrade", "--install", "security-profiles-operator",
+            os.path.join(repo_root, chart_path),
             "--namespace", namespace_name, "--wait", "--timeout", "5m",
             "--values", os.path.join(os.path.dirname(os.path.abspath(__file__)), "values.yaml"),
         ],
