@@ -2,31 +2,58 @@
 replicaCount: 3
 
 spoImage:
-  registry: gcr.io
-  repository: k8s-staging-sp-operator/security-profiles-operator
-  tag: latest
+  registry: registry.k8s.io
+  repository: security-profiles-operator/security-profiles-operator
+  tag: v1.1.2
+  # Pins the operator image by digest (sha256:...), the tag is only used
+  # without a digest.
+  digest: ""
+  pullPolicy: IfNotPresent
 
+# Secrets for pulling the images from a private registry, for example
+# [{name: my-pull-secret}]. They apply to the operator deployment and, through
+# spec.imagePullSecrets of the SPOD, to the daemon and the webhook.
+imagePullSecrets: []
+
+# The selinuxd images run privileged on every node, so they are pinned by
+# digest. The tag is only used when the digest is set to an empty string.
+# hack/update-selinuxd.sh bumps the digests.
 selinuxdImage:
   default:
     registry: quay.io
     repository: security-profiles-operator/selinuxd
     tag: latest
+    digest: sha256:f47bd24fb928bd0d168b86147e3536cf555c94fc5b85de3247fd16dad33f9460  # quay.io/security-profiles-operator/selinuxd:latest
   el8:
     registry: quay.io
     repository: security-profiles-operator/selinuxd-el8
     tag: latest
+    digest: sha256:e6e7febc76f5f032d42d35b98cc651354dd14ac5ae7b2a7d7403222788e41e4d  # quay.io/security-profiles-operator/selinuxd-el8:latest
   el9:
     registry: quay.io
     repository: security-profiles-operator/selinuxd-el9
     tag: latest
+    digest: sha256:cddbd306c48ee8d19b8fb07b2acda1ee99cb3f1d9c3988f828d24b4f2de5ad3c  # quay.io/security-profiles-operator/selinuxd-el9:latest
   fedora:
     registry: quay.io
     repository: security-profiles-operator/selinuxd-fedora
     tag: latest
+    digest: sha256:a5c36469e66bc44c32fc36d8d23571ed8903430233d32136b6272013a535627d  # quay.io/security-profiles-operator/selinuxd-fedora:latest
+  # selinuxd publishes no image for RHEL 10 and CoreOS 10 nodes, which get the
+  # default image unless el10 is set to an image built for them.
+  # el10:
+  #   registry: registry.example.com
+  #   repository: selinuxd-el10
+  #   digest: sha256:...
 
-# Deprecated, use selinux.enable instead
-enableSelinux: false
+# The kubelet root directory of the nodes, where the seccomp profiles get
+# installed.
+kubeletDir: /var/lib/kubelet
+
+# Deprecated, use selinux.enable instead.
+# enableSelinux: false
 selinux:
+  # Unset, SELinux is enabled on OpenShift only, like without the chart.
   # enable: false # Overrides deprecated enableSelinux flag
   enableRawSelinuxProfiles: true
   typeTag: spc_t
@@ -40,34 +67,53 @@ selinux:
     # allowedTypes: []
     # allowedClasses: []
     # allowedPermissions: []
+    # Permissive SelinuxProfiles bypass the denylist, false rejects them.
+    # allowPermissiveProfiles: true
 enableLogEnricher: false
 enableJsonEnricher: false
 enableAppArmor: false
 enableBpfRecorder: false
 enableProfiling: false
 verbosity: 0
+restrictToNamespace: ""
+
+# Additional environment variables of the operator container, like
+# MAX_METRIC_SERIES or ENABLE_INSECURE_METRICS_ACCESS. Their names must not
+# repeat the ones the chart sets already.
+extraEnv: []
+
+webhook:
+  tolerations: []
+
+# Any field of the SecurityProfilesOperatorDaemon spec, merged over the fields
+# which the dedicated values render. Objects get merged field by field, every
+# other value, lists included, replaces the rendered one.
+spod:
+  spec: {}
 
 nameOverride: ""
+# Has no effect, the chart uses fixed names for the resources it creates.
 fullnameOverride: ""
 
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
-
+# Annotations for the operator pods.
 podAnnotations: {}
 
-podSecurityContext: {}
-  # fsGroup: 2000
+# The priority class of the operator pods. The operator manages the daemon and
+# the webhooks, so it is critical for the cluster. Set to "" for none.
+priorityClassName: system-cluster-critical
 
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+# The manager caches the profiles, their node statuses and the pods of the
+# whole cluster, which grows with the cluster. The request fits small clusters,
+# while the limit leaves room for large ones.
 resources:
   limits:
     cpu: 500m
-    memory: 128Mi
+    memory: 512Mi
   requests:
     cpu: 250m
     memory: 50Mi
@@ -93,14 +139,33 @@ daemon:
       memory: 64Mi
       ephemeral-storage: 50Mi
 
+# Do not set the replica count of the operator deployment, for example when
+# it is scaled externally
 autoscaling:
   enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  # targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
 
-nodeSelector: {}
+# Keeps at least minAvailable operator replicas running during voluntary
+# disruptions like node drains, so that the operands keep getting reconciled.
+# With a single replica, minAvailable 1 blocks the drain of its node.
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# Spreads the operator replicas across nodes and zones where possible, so that
+# a single failure does not take down every replica. Constraints without a
+# labelSelector get the selector labels of the operator pods.
+topologySpreadConstraints:
+- maxSkew: 1
+  topologyKey: kubernetes.io/hostname
+  whenUnsatisfiable: ScheduleAnyway
+- maxSkew: 1
+  topologyKey: topology.kubernetes.io/zone
+  whenUnsatisfiable: ScheduleAnyway
+
+# The operator only runs on Linux nodes. Additional entries get merged, set
+# kubernetes.io/os to null to remove it.
+nodeSelector:
+  kubernetes.io/os: linux
 
 tolerations: []
 

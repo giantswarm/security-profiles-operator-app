@@ -3,3 +3,9 @@
 # policy-exceptions before the install, so the hooks land there.
 kyvernoPolicyExceptions:
   namespace: policy-exceptions
+
+# The kind nodes of the chart tests have no SELinux, so the spod daemon cannot
+# mount /sys/fs/selinux and /var/lib/selinux and never becomes ready.
+security-profiles-operator:
+  selinux:
+    enable: false

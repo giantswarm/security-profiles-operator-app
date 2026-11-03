@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   annotations:
-    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator
@@ -15,7 +15,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   annotations:
-    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator
@@ -28,7 +28,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   annotations:
-    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator
@@ -41,7 +41,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   annotations:
-    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator
@@ -51,14 +51,6 @@ metadata:
 rules:
 - apiGroups:
   - ""
-  resourceNames:
-  - security-profiles-operator-profile
-  resources:
-  - configmaps
-  verbs:
-  - get
-- apiGroups:
-  - ""
   resources:
   - events
   verbs:
@@ -66,6 +58,7 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - namespaces
   - nodes
   - pods
   verbs:
@@ -73,71 +66,80 @@ rules:
   - list
   - watch
 - apiGroups:
-  - ""
+  - admissionregistration.k8s.io
+  resourceNames:
+  - spo-mutating-webhook-configuration
   resources:
-  - services
+  - mutatingwebhookconfigurations
   verbs:
-  - create
   - get
   - list
   - patch
-  - update
   - watch
 - apiGroups:
   - admissionregistration.k8s.io
   resources:
   - mutatingwebhookconfigurations
+  - validatingadmissionpolicies
+  - validatingadmissionpolicybindings
   - validatingwebhookconfigurations
   verbs:
   - create
+- apiGroups:
+  - admissionregistration.k8s.io
+  resourceNames:
+  - spo-recording-profiles
+  resources:
+  - validatingadmissionpolicies
+  - validatingadmissionpolicybindings
+  verbs:
   - get
   - list
-  - patch
   - update
   - watch
 - apiGroups:
-  - apps
+  - admissionregistration.k8s.io
+  resourceNames:
+  - spo-spod-jobs
+  - spo-spod-node-statuses
+  - spo-spod-profiles
+  - spo-spod-recordings
   resources:
-  - daemonsets
+  - validatingadmissionpolicies
+  - validatingadmissionpolicybindings
   verbs:
-  - create
+  - get
+  - update
+- apiGroups:
+  - admissionregistration.k8s.io
+  resourceNames:
+  - spo-validating-webhook-configuration
+  resources:
+  - validatingwebhookconfigurations
+  verbs:
   - get
   - list
   - patch
-  - update
   - watch
 - apiGroups:
-  - apps
+  - authentication.k8s.io
   resources:
-  - daemonsets/finalizers
-  verbs:
-  - delete
-  - get
-  - patch
-  - update
-- apiGroups:
-  - apps
-  resources:
-  - deployments
+  - tokenreviews
   verbs:
   - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
 - apiGroups:
-  - cert-manager.io
+  - authorization.k8s.io
   resources:
-  - certificates
-  - issuers
+  - subjectaccessreviews
   verbs:
   - create
+- apiGroups:
+  - config.openshift.io
+  resources:
+  - apiservers
+  verbs:
   - get
   - list
-  - patch
-  - update
   - watch
 - apiGroups:
   - config.openshift.io
@@ -145,57 +147,35 @@ rules:
   - clusteroperators
   verbs:
   - get
-  - list
-  - watch
 - apiGroups:
-  - monitoring.coreos.com
+  - events.k8s.io
   resources:
-  - servicemonitors
+  - events
   verbs:
   - create
-  - get
-  - list
   - patch
-  - update
-  - watch
 - apiGroups:
   - security-profiles-operator.x-k8s.io
   resources:
-  - profilerecordings
-  - profilerecordings/finalizers
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - security-profiles-operator.x-k8s.io
-  resources:
-  - rawselinuxprofiles
+  - apparmorprofiles
+  - seccompprofiles
+  - selinuxprofiles
   verbs:
   - create
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - security-profiles-operator.x-k8s.io
-  resources:
-  - rawselinuxprofiles/finalizers
-  - seccompprofiles/finalizers
-  - securityprofilesoperatordaemons/finalizers
-  - selinuxprofiles/finalizers
-  verbs:
   - delete
   - get
+  - list
   - patch
   - update
+  - watch
 - apiGroups:
   - security-profiles-operator.x-k8s.io
   resources:
+  - apparmorprofiles/status
+  - profilebindings/status
+  - profilerecordings/status
   - rawselinuxprofiles/status
   - seccompprofiles/status
-  - securityprofilesoperatordaemons/status
   - selinuxprofiles/status
   verbs:
   - get
@@ -204,12 +184,10 @@ rules:
 - apiGroups:
   - security-profiles-operator.x-k8s.io
   resources:
-  - seccompprofiles
-  - selinuxprofiles
+  - profilebindings
+  - profilerecordings
+  - rawselinuxprofiles
   verbs:
-  - create
-  - delete
-  - deletecollection
   - get
   - list
   - patch
@@ -224,22 +202,12 @@ rules:
   - get
   - list
   - watch
-- apiGroups:
-  - security-profiles-operator.x-k8s.io
-  resources:
-  - securityprofilesoperatordaemons
-  verbs:
-  - create
-  - get
-  - list
-  - update
-  - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   annotations:
-    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator
@@ -249,6 +217,57 @@ metadata:
   namespace: '{{ .Release.Namespace }}'
 rules:
 - apiGroups:
+  - ""
+  resourceNames:
+  - security-profiles-operator-profile
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - cert-manager.io
+  resources:
+  - certificates
+  - issuers
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
   - coordination.k8s.io
   resources:
   - leases
@@ -257,7 +276,43 @@ rules:
   - get
   - update
 - apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - servicemonitors
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - policy
+  resources:
+  - poddisruptionbudgets
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - security-profiles-operator.x-k8s.io
+  resources:
+  - securityprofilesoperatordaemons
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - security-profiles-operator.x-k8s.io
+  resources:
+  - securityprofilesoperatordaemons/finalizers
+  - securityprofilesoperatordaemons/status
+  verbs:
+  - update
+- apiGroups:
   - security.openshift.io
+  resourceNames:
+  - restricted-v2
   resources:
   - securitycontextconstraints
   verbs:
@@ -267,7 +322,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   annotations:
-    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator
@@ -278,25 +333,29 @@ rules:
 - apiGroups:
   - ""
   resources:
-  - events
+  - namespaces
+  - nodes
   verbs:
-  - create
   - get
-  - patch
-  - update
 - apiGroups:
   - ""
   resources:
-  - nodes
   - pods
   verbs:
   - get
   - list
   - watch
 - apiGroups:
+  - admissionregistration.k8s.io
+  resourceNames:
+  - spo-mutating-webhook-configuration
+  resources:
+  - mutatingwebhookconfigurations
+  verbs:
+  - get
+- apiGroups:
   - authentication.k8s.io
   resources:
-  - subjectaccessreviews
   - tokenreviews
   verbs:
   - create
@@ -307,20 +366,31 @@ rules:
   verbs:
   - create
 - apiGroups:
-  - batch
+  - config.openshift.io
   resources:
-  - jobs
+  - apiservers
   verbs:
-  - create
-  - delete
   - get
   - list
   - watch
 - apiGroups:
+  - config.openshift.io
+  resources:
+  - clusteroperators
+  verbs:
+  - get
+- apiGroups:
+  - events.k8s.io
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
   - security-profiles-operator.x-k8s.io
   resources:
   - apparmorprofiles
-  - rawselinuxprofiles
+  - seccompprofiles
   - selinuxprofiles
   verbs:
   - create
@@ -335,20 +405,8 @@ rules:
   - apparmorprofiles/finalizers
   - rawselinuxprofiles/finalizers
   - seccompprofiles/finalizers
-  - selinuxprofiles/finalizers
-  verbs:
-  - delete
-  - get
-  - patch
-  - update
-- apiGroups:
-  - security-profiles-operator.x-k8s.io
-  resources:
-  - apparmorprofiles/status
-  - rawselinuxprofiles/status
-  - seccompprofiles/status
   - securityprofilenodestatuses/status
-  - selinuxprofiles/status
+  - selinuxprofiles/finalizers
   verbs:
   - get
   - patch
@@ -357,6 +415,7 @@ rules:
   - security-profiles-operator.x-k8s.io
   resources:
   - profilerecordings
+  - rawselinuxprofiles
   verbs:
   - get
   - list
@@ -366,7 +425,6 @@ rules:
 - apiGroups:
   - security-profiles-operator.x-k8s.io
   resources:
-  - seccompprofiles
   - securityprofilenodestatuses
   verbs:
   - create
@@ -376,20 +434,12 @@ rules:
   - patch
   - update
   - watch
-- apiGroups:
-  - security-profiles-operator.x-k8s.io
-  resources:
-  - securityprofilesoperatordaemons
-  verbs:
-  - get
-  - list
-  - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   annotations:
-    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator
@@ -399,7 +449,34 @@ metadata:
   namespace: '{{ .Release.Namespace }}'
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - secrets
+  verbs:
+  - get
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - watch
+- apiGroups:
+  - security-profiles-operator.x-k8s.io
+  resources:
+  - securityprofilesoperatordaemons
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - security.openshift.io
+  resourceNames:
+  - privileged
   resources:
   - securitycontextconstraints
   verbs:
@@ -409,7 +486,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   annotations:
-    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator
@@ -420,65 +497,60 @@ rules:
 - apiGroups:
   - ""
   resources:
-  - events
+  - pods
+  verbs:
+  - get
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
   verbs:
   - create
 - apiGroups:
-  - ""
+  - authorization.k8s.io
   resources:
-  - pods
+  - subjectaccessreviews
+  verbs:
+  - create
+- apiGroups:
+  - config.openshift.io
+  resources:
+  - apiservers
   verbs:
   - get
   - list
   - watch
 - apiGroups:
+  - config.openshift.io
+  resources:
+  - clusteroperators
+  verbs:
+  - get
+- apiGroups:
+  - events.k8s.io
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
   - security-profiles-operator.x-k8s.io
   resources:
   - apparmorprofiles
-  - rawselinuxprofiles
+  - profilebindings
+  - profilerecordings
   - seccompprofiles
   - selinuxprofiles
   verbs:
   - get
   - list
   - watch
-- apiGroups:
-  - security-profiles-operator.x-k8s.io
-  resources:
-  - profilebindings
-  - profilerecordings
-  verbs:
-  - create
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - security-profiles-operator.x-k8s.io
-  resources:
-  - profilebindings/finalizers
-  - profilerecordings/finalizers
-  verbs:
-  - delete
-  - get
-  - patch
-  - update
-- apiGroups:
-  - security-profiles-operator.x-k8s.io
-  resources:
-  - profilebindings/status
-  - profilerecordings/status
-  verbs:
-  - get
-  - patch
-  - update
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   annotations:
-    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator
@@ -488,23 +560,15 @@ metadata:
   namespace: '{{ .Release.Namespace }}'
 rules:
 - apiGroups:
-  - coordination.k8s.io
+  - security-profiles-operator.x-k8s.io
   resources:
-  - leases
-  verbs:
-  - create
-- apiGroups:
-  - coordination.k8s.io
-  resourceNames:
-  - security-profiles-operator-webhook-lock
-  resources:
-  - leases
+  - securityprofilesoperatordaemons
   verbs:
   - get
-  - patch
-  - update
 - apiGroups:
   - security.openshift.io
+  resourceNames:
+  - restricted-v2
   resources:
   - securitycontextconstraints
   verbs:
@@ -514,7 +578,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   annotations:
-    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator
@@ -534,7 +598,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   annotations:
-    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator
@@ -555,7 +619,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   annotations:
-    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator
@@ -575,7 +639,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   annotations:
-    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator
@@ -596,7 +660,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   annotations:
-    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator
@@ -616,7 +680,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   annotations:
-    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator
@@ -637,7 +701,7 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   annotations:
-    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator
@@ -649,7 +713,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   annotations:
-    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator
@@ -663,11 +727,25 @@ rules:
   verbs:
   - get
 ---
+apiVersion: v1
+automountServiceAccountToken: false
+kind: ServiceAccount
+metadata:
+  annotations:
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
+    meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
+  labels:
+    app: security-profiles-operator
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: security-profiles-operator
+  name: spo-metrics-client
+  namespace: '{{ .Release.Namespace }}'
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   annotations:
-    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator
@@ -680,23 +758,370 @@ roleRef:
   name: spo-metrics-client
 subjects:
 - kind: ServiceAccount
-  name: default
+  name: spo-metrics-client
   namespace: '{{ .Release.Namespace }}'
 ---
 apiVersion: v1
 kind: Secret
 metadata:
   annotations:
-    kubernetes.io/service-account.name: default
-    meta.helm.sh/release-name: security-profiles-operator
+    kubernetes.io/service-account.name: spo-metrics-client
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator
     app.kubernetes.io/managed-by: Helm
     helm.sh/chart: security-profiles-operator
-  name: metrics-token
+  name: spo-metrics-client-token
   namespace: '{{ .Release.Namespace }}'
 type: kubernetes.io/service-account-token
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  annotations:
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
+    meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
+  labels:
+    app: security-profiles-operator
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: security-profiles-operator
+  name: spo-spod-jobs
+spec:
+  failurePolicy: Fail
+  matchConditions:
+  - expression: request.userInfo.username == 'system:serviceaccount:' + request.namespace
+      + ':spod'
+    name: spod-service-account
+  matchConstraints:
+    resourceRules:
+    - apiGroups:
+      - batch
+      apiVersions:
+      - '*'
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - jobs
+  validations:
+  - expression: has(variables.podSpec.serviceAccountName) && variables.podSpec.serviceAccountName
+      == 'spod'
+    message: Jobs of the spod service account have to run as the spod service account
+    reason: Forbidden
+  - expression: size(variables.requestNodes) > 0
+    message: The service account token of the spod service account has to name the
+      node of the requesting pod
+    reason: Forbidden
+  - expression: has(variables.podSpec.nodeName) && variables.podSpec.nodeName != ''
+      && variables.podSpec.nodeName in variables.requestNodes
+    message: Jobs of the spod service account have to run on the node of the requesting
+      pod
+    reason: Forbidden
+  - expression: '!(has(variables.podSpec.hostNetwork) && variables.podSpec.hostNetwork)
+      && !(has(variables.podSpec.hostPID) && variables.podSpec.hostPID) && !(has(variables.podSpec.hostIPC)
+      && variables.podSpec.hostIPC)'
+    message: Jobs of the spod service account must not use host namespaces
+    reason: Forbidden
+  - expression: size(variables.podSpec.containers) == 1 && (!has(variables.podSpec.initContainers)
+      || size(variables.podSpec.initContainers) == 0) && variables.podSpec.containers.all(c,
+      !has(c.envFrom) && (!has(c.env) || c.env.all(e, !has(e.valueFrom))))
+    message: Jobs of the spod service account have to run a single container without
+      environment from secrets or config maps
+    reason: Forbidden
+  - expression: '!has(variables.podSpec.volumes) || variables.podSpec.volumes.all(v,
+      has(v.hostPath) && v.hostPath.path in [''/sys/fs/selinux'', ''/etc/selinux'',
+      ''/var/lib/selinux''] && has(v.hostPath.type) && v.hostPath.type == ''Directory'')'
+    message: Jobs of the spod service account may only mount the SELinux host paths
+      as directories
+    reason: Forbidden
+  variables:
+  - expression: object.spec.template.spec
+    name: podSpec
+  - expression: 'has(request.userInfo.extra) && ''authentication.kubernetes.io/node-name''
+      in request.userInfo.extra ? request.userInfo.extra[''authentication.kubernetes.io/node-name'']
+      : []'
+    name: requestNodes
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  annotations:
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
+    meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
+  labels:
+    app: security-profiles-operator
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: security-profiles-operator
+  name: spo-spod-jobs
+spec:
+  policyName: spo-spod-jobs
+  validationActions:
+  - Deny
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  annotations:
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
+    meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
+  labels:
+    app: security-profiles-operator
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: security-profiles-operator
+  name: spo-spod-node-statuses
+spec:
+  failurePolicy: Fail
+  matchConditions:
+  - expression: request.userInfo.username.matches('^system:serviceaccount:[^:]+:spod$')
+    name: spod-service-account
+  matchConstraints:
+    resourceRules:
+    - apiGroups:
+      - security-profiles-operator.x-k8s.io
+      apiVersions:
+      - v1
+      operations:
+      - CREATE
+      - UPDATE
+      - DELETE
+      resources:
+      - securityprofilenodestatuses
+      - securityprofilenodestatuses/status
+  validations:
+  - expression: size(variables.requestNodes) == 0 || (request.operation != 'CREATE'
+      || object.spec.nodeName in variables.requestNodes) && variables.ownStatuses.all(own,
+      own)
+    message: The spod service account may only write the node statuses of the node
+      of the requesting pod
+    reason: Forbidden
+  - expression: '!(request.operation == ''CREATE'' || request.operation == ''UPDATE''
+      && !variables.oldLabel.hasValue() && variables.label.hasValue()) || (object.?spec.?nodeName.orValue('''')
+      != '''' ? size(object.spec.nodeName) > 63 || variables.label == optional.of(object.spec.nodeName)
+      : size(variables.requestNodes) == 0 || variables.label.orValue('''') in variables.requestNodes)'
+    message: The spo.x-k8s.io/node-name label of a node status has to name its node
+    reason: Forbidden
+  - expression: request.operation != 'UPDATE' || !variables.oldLabel.hasValue() ||
+      variables.label == variables.oldLabel
+    message: The spod service account must not change or remove the spo.x-k8s.io/node-name
+      label of a node status
+    reason: Forbidden
+  - expression: request.operation != 'CREATE' || size(object.metadata.name) >= 63
+      || object.metadata.name.endsWith('-' + object.spec.nodeName)
+    message: The name of a node status has to end with the name of its node
+    reason: Forbidden
+  variables:
+  - expression: 'has(request.userInfo.extra) && ''authentication.kubernetes.io/node-name''
+      in request.userInfo.extra ? request.userInfo.extra[''authentication.kubernetes.io/node-name'']
+      : []'
+    name: requestNodes
+  - expression: 'request.operation == ''CREATE'' ? [object] : request.operation ==
+      ''DELETE'' ? [oldObject] : [object, oldObject]'
+    name: statuses
+  - expression: 'variables.statuses.map(s, s.?spec.?nodeName.orValue('''') != ''''
+      ? s.spec.nodeName in variables.requestNodes : s.metadata.?labels[?''spo.x-k8s.io/node-name''].hasValue()
+      ? s.metadata.labels[''spo.x-k8s.io/node-name''] in variables.requestNodes :
+      variables.requestNodes.exists(n, s.metadata.name.endsWith(''-'' + n)))'
+    name: ownStatuses
+  - expression: object.metadata.?labels[?'spo.x-k8s.io/node-name']
+    name: label
+  - expression: oldObject.metadata.?labels[?'spo.x-k8s.io/node-name']
+    name: oldLabel
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  annotations:
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
+    meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
+  labels:
+    app: security-profiles-operator
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: security-profiles-operator
+  name: spo-spod-node-statuses
+spec:
+  policyName: spo-spod-node-statuses
+  validationActions:
+  - Deny
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  annotations:
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
+    meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
+  labels:
+    app: security-profiles-operator
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: security-profiles-operator
+  name: spo-spod-profiles
+spec:
+  failurePolicy: Fail
+  matchConditions:
+  - expression: request.userInfo.username.matches('^system:serviceaccount:[^:]+:spod$')
+    name: spod-service-account
+  matchConstraints:
+    resourceRules:
+    - apiGroups:
+      - security-profiles-operator.x-k8s.io
+      apiVersions:
+      - v1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - apparmorprofiles
+      - rawselinuxprofiles
+      - seccompprofiles
+      - selinuxprofiles
+  validations:
+  - expression: request.operation != 'CREATE' || (request.kind.kind != 'RawSelinuxProfile'
+      && 'spo.x-k8s.io/recording-id' in variables.labels && 'spo.x-k8s.io/recording-namespace'
+      in variables.labels)
+    message: The spod service account may only create recorded profiles
+    reason: Forbidden
+  - expression: request.operation != 'UPDATE' || variables.recorded || variables.specs[0]
+      == variables.specs[1]
+    message: The spod service account may only change the spec of the profiles which
+      it recorded
+    reason: Forbidden
+  - expression: request.operation != 'UPDATE' || variables.labels[?'spo.x-k8s.io/recording-id']
+      == variables.oldLabels[?'spo.x-k8s.io/recording-id']
+    message: The spod service account must not change the spo.x-k8s.io/recording-id
+      label
+    reason: Forbidden
+  - expression: request.operation != 'UPDATE' || variables.recorded || (variables.oldLabels.all(k,
+      k == 'spo.x-k8s.io/profile-id' || variables.labels[?k] == optional.of(variables.oldLabels[k]))
+      && variables.labels.all(k, k == 'spo.x-k8s.io/profile-id' || k in variables.oldLabels))
+    message: The spod service account may only add the spo.x-k8s.io/profile-id label
+      to the profiles which it did not record
+    reason: Forbidden
+  - expression: request.operation != 'UPDATE' || object.metadata.?ownerReferences.orValue([])
+      == oldObject.metadata.?ownerReferences.orValue([])
+    message: The spod service account must not change the owner references
+    reason: Forbidden
+  variables:
+  - expression: 'has(object.metadata.labels) ? object.metadata.labels : {}'
+    name: labels
+  - expression: 'request.operation == ''UPDATE'' && has(oldObject.metadata.labels)
+      ? oldObject.metadata.labels : {}'
+    name: oldLabels
+  - expression: request.kind.kind != 'RawSelinuxProfile' && 'spo.x-k8s.io/recording-id'
+      in variables.oldLabels
+    name: recorded
+  - expression: '[object, oldObject].map(o, o.?spec.orValue({})).map(s, request.kind.kind
+      == ''SeccompProfile'' ? [ dyn(s.?state.orValue('''')), dyn(s.?baseProfileName.orValue('''')),
+      dyn(s.?defaultAction.orValue('''')), dyn(s.?architectures.orValue([])), dyn(s.?listenerPath.orValue('''')),
+      dyn(s.?listenerMetadata.orValue('''')), dyn(s.?flags.orValue([])), dyn(s.?syscalls.orValue([]).map(c,
+      [ dyn(c.?names.orValue([])), dyn(c.?action.orValue('''')), dyn(c.?errnoRet.orValue(0)),
+      dyn(c.?args.orValue([]).map(a, [ dyn(has(a.index) ? [a.index] : []), dyn(a.?value.orValue(0)),
+      dyn(a.?valueTwo.orValue(0)), dyn(a.?op.orValue(''''))]))]))] : request.kind.kind
+      == ''AppArmorProfile'' ? [ dyn(s.?state.orValue('''')), dyn(s.?mode.orValue('''')),
+      dyn(s.?abstract.?executable.hasValue() ? [ dyn(s.abstract.executable.?allowedExecutables.orValue([])),
+      dyn(s.abstract.executable.?allowedLibraries.orValue([]))] : []), dyn(s.?abstract.?filesystem.hasValue()
+      ? [ dyn(s.abstract.filesystem.?readOnlyPaths.orValue([])), dyn(s.abstract.filesystem.?writeOnlyPaths.orValue([])),
+      dyn(s.abstract.filesystem.?readWritePaths.orValue([]))] : []), dyn(s.?abstract.?network.hasValue()
+      ? [ dyn(has(s.abstract.network.allowRaw) ? [s.abstract.network.allowRaw] : []),
+      dyn(has(s.abstract.network.allowedProtocols) ? [ dyn(has(s.abstract.network.allowedProtocols.allowTcp)
+      ? [s.abstract.network.allowedProtocols.allowTcp] : []), dyn(has(s.abstract.network.allowedProtocols.allowUdp)
+      ? [s.abstract.network.allowedProtocols.allowUdp] : [])] : [])] : []), dyn(s.?abstract.?capability.hasValue()
+      ? [ dyn(s.abstract.capability.?allowedCapabilities.orValue([]))] : []), dyn(s.?abstract.?ptrace.hasValue()
+      ? [ dyn(s.abstract.ptrace.?allowedAccess.orValue([])), dyn(s.abstract.ptrace.?peer.orValue(''''))]
+      : [])] : request.kind.kind == ''SelinuxProfile'' ? [ dyn(s.?state.orValue('''')),
+      dyn(s.?mode.orValue('''')), dyn(s.?inherit.orValue([]).size() > 0 ? s.inherit.map(i,
+      [ dyn(i.?kind.orValue('''')), dyn(i.?name.orValue(''''))]) : [[dyn(''System''),
+      dyn(''container'')]]), dyn(s.?allow.orValue({}))] : [ dyn(s.?state.orValue('''')),
+      dyn(s.?policy.orValue(''''))])'
+    name: specs
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  annotations:
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
+    meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
+  labels:
+    app: security-profiles-operator
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: security-profiles-operator
+  name: spo-spod-profiles
+spec:
+  policyName: spo-spod-profiles
+  validationActions:
+  - Deny
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  annotations:
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
+    meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
+  labels:
+    app: security-profiles-operator
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: security-profiles-operator
+  name: spo-spod-recordings
+spec:
+  failurePolicy: Fail
+  matchConditions:
+  - expression: request.userInfo.username.matches('^system:serviceaccount:[^:]+:spod$')
+    name: spod-service-account
+  matchConstraints:
+    resourceRules:
+    - apiGroups:
+      - security-profiles-operator.x-k8s.io
+      apiVersions:
+      - v1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - profilerecordings
+  validations:
+  - expression: request.operation == 'UPDATE'
+    message: The spod service account must not create recordings
+    reason: Forbidden
+  - expression: variables.specs[0] == variables.specs[1]
+    message: The spod service account must not change the spec of recordings
+    reason: Forbidden
+  - expression: object.metadata.?labels.orValue({}) == oldObject.metadata.?labels.orValue({})
+      && object.metadata.?annotations.orValue({}) == oldObject.metadata.?annotations.orValue({})
+      && object.metadata.?ownerReferences.orValue([]) == oldObject.metadata.?ownerReferences.orValue([])
+    message: The spod service account must not change the labels, annotations or owner
+      references of recordings
+    reason: Forbidden
+  - expression: variables.oldFinalizers.all(f, f in variables.finalizers) && variables.finalizers.all(f,
+      f in variables.oldFinalizers || f == 'spo.x-k8s.io/has-unmerged-profiles')
+    message: The spod service account may only add the spo.x-k8s.io/has-unmerged-profiles
+      finalizer to recordings
+    reason: Forbidden
+  variables:
+  - expression: '[object, oldObject].map(o, o.?spec.orValue({})).map(s, [ dyn(s.?kind.orValue('''')),
+      dyn(s.?recorder.orValue('''')), dyn(s.?mergeStrategy.orValue(''None'')), dyn(s.?podSelector.hasValue()),
+      dyn(s.?podSelector.?matchLabels.orValue({})), dyn(s.?podSelector.?matchExpressions.orValue([]).map(e,
+      [ dyn(e.?key.orValue('''')), dyn(e.?operator.orValue('''')), dyn(e.?values.orValue([]))])),
+      dyn(s.?containers.orValue([])), dyn(s.?disableProfileAfterRecording.orValue(false))])'
+    name: specs
+  - expression: object.metadata.?finalizers.orValue([])
+    name: finalizers
+  - expression: oldObject.metadata.?finalizers.orValue([])
+    name: oldFinalizers
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  annotations:
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
+    meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
+  labels:
+    app: security-profiles-operator
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: security-profiles-operator
+  name: spo-spod-recordings
+spec:
+  policyName: spo-spod-recordings
+  validationActions:
+  - Deny
 ---
 apiVersion: v1
 data:
@@ -742,6 +1167,9 @@ data:
             "capget",
             "capset",
             "chdir",
+            "clock_getres",
+            "clock_gettime",
+            "clock_gettime64",
             "clone",
             "clone3",
             "close",
@@ -753,6 +1181,8 @@ data:
             "epoll_wait",
             "eventfd2",
             "execve",
+            "exit",
+            "exit_group",
             "faccessat2",
             "fchownat",
             "fcntl",
@@ -770,6 +1200,7 @@ data:
             "getsockname",
             "getsockopt",
             "gettid",
+            "gettimeofday",
             "ioctl",
             "listen",
             "lseek",
@@ -781,6 +1212,7 @@ data:
             "munmap",
             "nanosleep",
             "newfstatat",
+            "open_by_handle_at",
             "openat",
             "perf_event_open",
             "prctl",
@@ -808,7 +1240,9 @@ data:
             "statfs",
             "statx",
             "tgkill",
+            "time",
             "uname",
+            "unlinkat",
             "write"
           ],
           "action": "SCMP_ACT_ALLOW"
@@ -822,14 +1256,16 @@ data:
       labels:
         spo.x-k8s.io/container-id: bpf-recorder
       name: bpfrecorder-apparmor
-      namespace: security-profiles-operator
     spec:
       abstract:
         capability:
           allowedCapabilities:
           - bpf
           - chown
+          - dac_read_search
           - perfmon
+          - sys_admin
+          - sys_ptrace
           - sys_resource
         executable:
           allowedExecutables:
@@ -838,24 +1274,29 @@ data:
           readOnlyPaths:
           - /proc/@{pid}/cgroup
           - /proc/@{pid}/maps
+          - /proc/@{pid}/mountinfo
+          - /proc/@{pid}/stat
           - /proc/sys/net/core/somaxconn
           - /sys/devices/kprobe/type
           - /sys/devices/system/cpu/online
           - /sys/fs/bpf/
+          - /sys/fs/cgroup/
+          - /sys/fs/cgroup/**
           - /sys/kernel/btf/vmlinux
           - /sys/kernel/debug/tracing/events/**/id
           - /sys/kernel/mm/transparent_hugepage/hpage_pmd_size
           - /sys/kernel/security/lsm
           - /var/run/secrets/kubernetes.io/serviceaccount/**
-          - /var/run/secrets/kubernetes.io/serviceaccount/**
           readWritePaths:
-          - "ptrace (read),\n# ugly template injection hack"
           - /var/run/grpc/bpf-recorder.sock
           - /var/run/grpc/metrics.sock
         network:
           allowedProtocols:
             allowTcp: true
             allowUdp: true
+        ptrace:
+          allowedAccess:
+          - read
       state: Enabled
   json-enricher-log-volume-mount-path: /data/logs/jsonenricher
   json-enricher-log-volume-source.json: |-
@@ -905,6 +1346,9 @@ data:
             "capget",
             "capset",
             "chdir",
+            "clock_getres",
+            "clock_gettime",
+            "clock_gettime64",
             "clone",
             "clone3",
             "close",
@@ -916,9 +1360,11 @@ data:
             "execve",
             "exit_group",
             "faccessat2",
+            "fchmodat",
             "fcntl",
             "fstat",
             "fstatfs",
+            "fsync",
             "futex",
             "getcwd",
             "getdents64",
@@ -930,6 +1376,7 @@ data:
             "getsockname",
             "getsockopt",
             "gettid",
+            "gettimeofday",
             "inotify_add_watch",
             "inotify_init1",
             "listen",
@@ -947,6 +1394,8 @@ data:
             "prlimit64",
             "read",
             "readlinkat",
+            "renameat",
+            "renameat2",
             "rseq",
             "rt_sigaction",
             "rt_sigprocmask",
@@ -958,6 +1407,7 @@ data:
             "set_tid_address",
             "setgid",
             "setgroups",
+            "setns",
             "setsockopt",
             "setuid",
             "sigaltstack",
@@ -966,6 +1416,7 @@ data:
             "statfs",
             "statx",
             "tgkill",
+            "time",
             "uname",
             "unshare",
             "unlinkat",
@@ -975,18 +1426,18 @@ data:
         }
       ]
     }
-  selinuxd-image-mapping.json: |-
+  selinuxd-image-mapping.json: |
     [
         {
-            "regex": "(.*)(CoreOS).*(41[0-2]\\.[0-9]+)\\..*|(.*)(Red Hat Enterprise Linux release)\\s+8\\.[0-9]+",
+            "regex": "CoreOS\\s+41[0-2]\\.[0-9]+\\.|Red Hat Enterprise Linux(\\s+release)?\\s+8\\.[0-9]+",
             "imageFromVar": "RELATED_IMAGE_SELINUXD_EL8"
         },
         {
-            "regex": "(.*)(CoreOS).*10\\.[0-9]+\\..*|(.*)(Red Hat Enterprise Linux CoreOS)\\s+10\\.[0-9]+\\..*|(.*)(Red Hat Enterprise Linux release)\\s+10\\.[0-9]+",
+            "regex": "CoreOS\\s+10\\.[0-9]+\\.|Red Hat Enterprise Linux(\\s+release)?\\s+10\\.[0-9]+",
             "imageFromVar": "RELATED_IMAGE_SELINUXD_EL10"
         },
         {
-            "regex": "(.*)(CoreOS).*(41[3-9]\\.[0-9]+)\\..*|(.*)(CoreOS)\\s+9\\.[0-9]+\\..*|(.*)(Red Hat Enterprise Linux release)\\s+9\\.[0-9]+",
+            "regex": "CoreOS\\s+(41[3-9]|9)\\.[0-9]+\\.|Red Hat Enterprise Linux(\\s+release)?\\s+9\\.[0-9]+",
             "imageFromVar": "RELATED_IMAGE_SELINUXD_EL9"
         },
         {
@@ -1062,7 +1513,6 @@ data:
       labels:
         spo.x-k8s.io/container-id: security-profiles-operator
       name: spo-apparmor
-      namespace: security-profiles-operator
     spec:
       abstract:
         capability:
@@ -1072,6 +1522,7 @@ data:
           - mac_admin
           - sys_admin
           - sys_chroot
+          - sys_ptrace
         executable:
           allowedExecutables:
           - /security-profiles-operator
@@ -1081,6 +1532,13 @@ data:
           readOnlyPaths:
           - /  # workaround for apparmor bug
           - /etc/apparmor/parser.conf
+          # name resolution and CA certificates for pulling base profiles
+          - /etc/hosts
+          - /etc/nsswitch.conf
+          - /etc/resolv.conf
+          - /etc/pki/**
+          - /etc/ssl/certs/
+          - /etc/ssl/certs/**
           - /proc/@{pid}/maps
           - /proc/@{pid}/mounts
           - /proc/sys/kernel/osrelease
@@ -1090,10 +1548,23 @@ data:
           - /var/run/secrets/metrics/**
           - /sys/module/apparmor/parameters/enabled
           - /sys/devices/system/cpu/possible
+          - /etc/apparmor.d/
+          - /var/lib/kubelet/seccomp/operator/
           readWritePaths:
-          - "ptrace (read),  # ugly template injection hack"
           - /var/run/grpc/metrics.sock
+          # the profile recorder connects to the bpf recorder and the enricher
+          - /var/run/grpc/bpf-recorder.sock
+          - /var/run/grpc/enricher.sock
+          # The pulled artifacts and the sigstore TUF cache in $HOME live in
+          # emptyDir volumes. The compiled AppArmor profiles go to the /tmp of
+          # the host, because apparmor_parser runs in its mount namespace. While
+          # the daemon is in that namespace, all paths also match on the host,
+          # so only the files of the daemon are allowed.
           - /tmp/aa_profile_bin_*
+          - /tmp/pull-*/
+          - /tmp/pull-*/**
+          - /home/.sigstore/
+          - /home/.sigstore/**
           - /etc/apparmor.d/**
           - /sys/kernel/security/apparmor/
           - /sys/kernel/security/apparmor/**
@@ -1102,11 +1573,14 @@ data:
           allowedProtocols:
             allowTcp: true
             allowUdp: true
+        ptrace:
+          allowedAccess:
+          - read
       state: Enabled
 kind: ConfigMap
 metadata:
   annotations:
-    meta.helm.sh/release-name: security-profiles-operator
+    meta.helm.sh/release-name: '{{ .Release.Name }}'
     meta.helm.sh/release-namespace: '{{ .Release.Namespace }}'
   labels:
     app: security-profiles-operator

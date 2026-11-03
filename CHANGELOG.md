@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `security-profiles-operator` to upstream version `v1.0.1`.
 - Updated `refpolicy` to upstream version `RELEASE_2_20260616`.
 - Updated `refpolicy` to upstream version `RELEASE_2_20260922`.
+- Updated `security-profiles-operator` to upstream version `v1.1.2`.
 
 ### Fixed
 

@@ -1,5 +1,6 @@
 # TODO: Enable upgrade step after first release
 skip-steps: [upgrade, functional]
 
-app-tests-app-config-file: tests/ats/values.yaml
+# The chart needs cert-manager, test_basic_cluster.py installs it and then the chart.
+app-tests-skip-app-deploy: true
 upgrade-tests-app-catalog-url: https://giantswarm.github.io/giantswarm-catalog
