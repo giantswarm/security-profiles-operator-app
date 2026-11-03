@@ -1,4 +1,6 @@
 import logging
+import os
+import subprocess
 from typing import Dict, List
 
 import pykube
@@ -11,6 +13,38 @@ logger = logging.getLogger(__name__)
 namespace_name = "default"
 
 timeout: int = 360
+
+CERT_MANAGER_VERSION = "v1.19.4"
+
+
+# The operator needs cert-manager, which ATS cannot install before the chart,
+# so .ats/main.yaml sets `app-tests-skip-app-deploy` and this fixture installs
+# cert-manager and then the chart under test.
+@pytest.fixture(scope="module")
+def chart_deployed(kube_cluster: Cluster, chart_path: str) -> None:
+    kube_cluster.kubectl(
+        "apply",
+        filename=f"https://github.com/cert-manager/cert-manager/releases/download/{CERT_MANAGER_VERSION}/cert-manager.yaml",
+        output_format="",
+    )
+    wait_for_deployments_to_run(
+        kube_cluster.kube_client,
+        ["cert-manager", "cert-manager-cainjector", "cert-manager-webhook"],
+        "cert-manager",
+        timeout,
+    )
+    # ATS creates this namespace only when it deploys the chart itself.
+    ns = pykube.Namespace(kube_cluster.kube_client, {"metadata": {"name": "policy-exceptions"}})
+    if not ns.exists():
+        ns.create()
+    subprocess.run(
+        [
+            "helm", "upgrade", "--install", "security-profiles-operator", chart_path,
+            "--namespace", namespace_name, "--wait", "--timeout", "5m",
+            "--values", os.path.join(os.path.dirname(os.path.abspath(__file__)), "values.yaml"),
+        ],
+        check=True,
+    )
 
 
 @pytest.mark.smoke
@@ -42,7 +76,7 @@ def test_cluster_info(
 # scope "module" means this is run only once, for the first test case requesting! It might be tricky
 # if you want to assert this multiple times
 @pytest.fixture(scope="module")
-def app_deployment(kube_cluster: Cluster) -> List[pykube.Deployment]:
+def app_deployment(kube_cluster: Cluster, chart_deployed: None) -> List[pykube.Deployment]:
     deployments = wait_for_deployments_to_run(
         kube_cluster.kube_client,
         ["security-profiles-operator"],
