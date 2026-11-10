@@ -9,3 +9,10 @@ kyvernoPolicyExceptions:
 security-profiles-operator:
   selinux:
     enable: false
+  # The single kind node of the chart tests has 2 CPUs, about half of which the
+  # control plane requests. 3 operator and 3 webhook replicas (the webhook pods
+  # copy the operator's resources) at 250m each plus spod do not fit
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
