@@ -7,21 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-10
+
 ### Added
 
-- Added Kyverno PolicyExceptions
+- Add `security-profiles-operator` chart.
+- Add `refpolicy` container policies.
+- Add kyverno PolicyExceptions.
 
 ### Changed
 
-- `app.giantswarm.io` label group was changed to `application.giantswarm.io`
-- Updated `security-profiles-operator` to upstream version `v1.0.1`.
-- Updated `refpolicy` to upstream version `RELEASE_2_20260616`.
-- Updated `refpolicy` to upstream version `RELEASE_2_20260922`.
-- Updated `security-profiles-operator` to upstream version `v1.1.2`.
+- Change `app.giantswarm.io` label group to `application.giantswarm.io`.
+- Update `refpolicy` to upstream version `RELEASE_2_20260922`.
+- Update `security-profiles-operator` to upstream version `v1.1.2`.
 
 ### Fixed
 
-- Chart tests run on app-test-suite 1.x: `.ats/main.yaml` drops the 0.x `smoke-tests-cluster-type` and `upgrade-tests-cluster-type` keys, which 1.x rejects, and the tests install the PolicyExceptions into the `policy-exceptions` namespace the kind cluster has.
-- The `helm.sh/chart` label is valid for long chart versions: the 63-character cut trims the whole trailing run of `-`, `.` and `_`.
+- Install policy exceptions into the `policy-exceptions` namespace instead of the `giantswarm` namespace for ATS 1.x.
+- Drop `smoke-tests-cluster-type` and `upgrade-tests-cluster-type` keys that are not supported by ATS 1.x.
+- Trim trailing `-`, `.` and `_` in `helm.sh/chart` label.
 
-[Unreleased]: https://github.com/giantswarm/security-profiles-operator-app/tree/main
+[Unreleased]: https://github.com/giantswarm/security-profiles-operator-app/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/giantswarm/security-profiles-operator-app/releases/tag/v0.1.0
