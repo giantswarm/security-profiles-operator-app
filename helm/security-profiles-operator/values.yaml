@@ -29,6 +29,8 @@ security-profiles-operator:
       allowedTypes:
         - kernel_t
         - security_t
+      allowedClasses:
+        - system
 
   daemon:
     tolerations:
