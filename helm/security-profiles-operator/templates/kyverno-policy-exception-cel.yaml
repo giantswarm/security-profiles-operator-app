@@ -1,0 +1,174 @@
+{{- if and .Values.kyvernoPolicyExceptions.enabled .Values.kyvernoPolicyExceptions.cel.enabled }}
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: security-profiles-operator-exceptions
+  namespace: {{ .Values.kyvernoPolicyExceptions.namespace | default .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": "pre-install,pre-upgrade"
+spec:
+  policyRefs:
+  - name: disallow-capabilities-strict
+    kind: ValidatingPolicy
+  # check-resources-request-and-limits-ratio is a supplemental policy and usually
+  # not enabled. It is excepted because the security-profiles-operator Deployment
+  # fails it when the policy is enforced.
+  - name: check-resources-request-and-limits-ratio
+    kind: ValidatingPolicy
+  # restrict-sa-automount-sa-token is a supplemental policy and usually not
+  # enabled. It is excepted because the security-profiles-operator ServiceAccount
+  # fails it when the policy is enforced.
+  - name: restrict-sa-automount-sa-token
+    kind: ValidatingPolicy
+  matchConditions:
+  - name: security-profiles-operator-workloads
+    # ServiceAccount is matched for restrict-sa-automount-sa-token.
+    expression: >-
+      request.kind.kind in ['Pod', 'Deployment', 'ServiceAccount'] &&
+      request.namespace == '{{ .Release.Namespace }}' &&
+      has(object.metadata.name) &&
+      object.metadata.name.startsWith('security-profiles-operator')
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: security-profiles-operator-webhook-exceptions
+  namespace: {{ .Values.kyvernoPolicyExceptions.namespace | default .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": "pre-install,pre-upgrade"
+spec:
+  policyRefs:
+  - name: require-run-as-nonroot
+    kind: ValidatingPolicy
+  - name: restrict-seccomp-strict
+    kind: ValidatingPolicy
+  # restrict-sa-automount-sa-token is a supplemental policy and usually not
+  # enabled. It is excepted because the spo-webhook ServiceAccount fails it when
+  # the policy is enforced.
+  - name: restrict-sa-automount-sa-token
+    kind: ValidatingPolicy
+  matchConditions:
+  - name: security-profiles-operator-webhook-workloads
+    # The second block matches the spo-webhook ServiceAccount, which the chart
+    # binds to the spo-webhook Role and ClusterRole for the webhook. No legacy
+    # exception covers it.
+    expression: >-
+      (request.kind.kind in ['Pod', 'Deployment'] &&
+      request.namespace == '{{ .Release.Namespace }}' &&
+      has(object.metadata.name) &&
+      object.metadata.name.startsWith('security-profiles-operator-webhook')) ||
+      (request.kind.kind == 'ServiceAccount' &&
+      request.namespace == '{{ .Release.Namespace }}' &&
+      has(object.metadata.name) &&
+      object.metadata.name == 'spo-webhook')
+---
+{{- /* The same toggles as the legacy spod exception; uniq drops the policies several toggles share. */}}
+{{- $spod := list "disallow-capabilities-strict" "disallow-host-path" "disallow-selinux" "require-run-as-non-root-user" "require-run-as-nonroot" "restrict-volume-types" }}
+{{- if index .Values "security-profiles-operator" "selinux" "enable" }}
+{{- $spod = concat $spod (list "disallow-capabilities-strict" "disallow-privilege-escalation" "disallow-privileged-containers") }}
+{{- end }}
+{{- if index .Values "security-profiles-operator" "enableLogEnricher" }}
+{{- $spod = concat $spod (list "disallow-capabilities-strict" "disallow-host-namespaces" "disallow-privilege-escalation" "disallow-privileged-containers") }}
+{{- end }}
+{{- if index .Values "security-profiles-operator" "enableJsonEnricher" }}
+{{- $spod = concat $spod (list "disallow-capabilities" "disallow-capabilities-strict" "disallow-host-namespaces" "disallow-privilege-escalation" "disallow-privileged-containers") }}
+{{- end }}
+{{- if index .Values "security-profiles-operator" "enableAppArmor" }}
+{{- $spod = concat $spod (list "disallow-host-namespaces" "disallow-privilege-escalation" "disallow-privileged-containers") }}
+{{- end }}
+{{- if index .Values "security-profiles-operator" "enableBpfRecorder" }}
+{{- $spod = concat $spod (list "disallow-capabilities-strict" "disallow-host-namespaces" "disallow-privilege-escalation" "disallow-privileged-containers") }}
+{{- end }}
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: security-profiles-operator-spod-exceptions
+  namespace: {{ .Values.kyvernoPolicyExceptions.namespace | default .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": "pre-install,pre-upgrade"
+spec:
+  policyRefs:
+  {{- range uniq $spod }}
+  - name: {{ . }}
+    kind: ValidatingPolicy
+  {{- end }}
+  {{- if or (index .Values "security-profiles-operator" "selinux" "enable") (index .Values "security-profiles-operator" "enableLogEnricher") }}
+  # require-non-root-groups is missing from the legacy exception. It is excepted
+  # because the spod DaemonSet fails it (the selinuxd and log-enricher containers
+  # run as group 0).
+  - name: require-non-root-groups
+    kind: ValidatingPolicy
+  # require-pod-probes is a supplemental policy and usually not enabled. It is
+  # excepted because the spod DaemonSet fails it when the policy is enforced (the
+  # selinuxd and log-enricher containers have no probes).
+  - name: require-pod-probes
+    kind: ValidatingPolicy
+  {{- end }}
+  {{- if index .Values "security-profiles-operator" "enableLogEnricher" }}
+  {{- if not (has "disallow-capabilities" $spod) }}
+  # disallow-capabilities is missing from the legacy exception. It is excepted
+  # because the spod DaemonSet fails it (the log-enricher container adds
+  # SYS_PTRACE and DAC_READ_SEARCH).
+  - name: disallow-capabilities
+    kind: ValidatingPolicy
+  {{- end }}
+  # restrict-apparmor-profiles is missing from the legacy exception. It is
+  # excepted because the spod DaemonSet fails it (the log-enricher container is
+  # Unconfined).
+  - name: restrict-apparmor-profiles
+    kind: ValidatingPolicy
+  # check-resources-request-and-limits-ratio is a supplemental policy and usually
+  # not enabled. It is excepted because the spod DaemonSet fails it when the
+  # policy is enforced (the log-enricher memory limit is 4x its request).
+  - name: check-resources-request-and-limits-ratio
+    kind: ValidatingPolicy
+  {{- end }}
+  # restrict-sa-automount-sa-token is a supplemental policy and usually not
+  # enabled. It is excepted because the spod ServiceAccount fails it when the
+  # policy is enforced.
+  - name: restrict-sa-automount-sa-token
+    kind: ValidatingPolicy
+  matchConditions:
+  - name: spod-workloads
+    # ServiceAccount is matched for restrict-sa-automount-sa-token.
+    expression: >-
+      request.kind.kind in ['Pod', 'DaemonSet', 'ServiceAccount'] &&
+      request.namespace == '{{ .Release.Namespace }}' &&
+      has(object.metadata.name) &&
+      object.metadata.name.startsWith('spod')
+{{- if index .Values "security-profiles-operator" "selinux" "enable" }}
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: security-profiles-operator-selinux-policy-reload-exceptions
+  namespace: {{ .Values.kyvernoPolicyExceptions.namespace | default .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": "pre-install,pre-upgrade"
+spec:
+  policyRefs:
+  - name: disallow-capabilities-strict
+    kind: ValidatingPolicy
+  - name: disallow-host-path
+    kind: ValidatingPolicy
+  - name: disallow-privilege-escalation
+    kind: ValidatingPolicy
+  - name: disallow-privileged-containers
+    kind: ValidatingPolicy
+  - name: disallow-selinux
+    kind: ValidatingPolicy
+  - name: require-run-as-nonroot
+    kind: ValidatingPolicy
+  - name: restrict-seccomp-strict
+    kind: ValidatingPolicy
+  - name: restrict-volume-types
+    kind: ValidatingPolicy
+  matchConditions:
+  - name: selinux-policy-reload-workloads
+    expression: >-
+      request.kind.kind in ['Pod', 'Job'] &&
+      request.namespace == '{{ .Release.Namespace }}' &&
+      has(object.metadata.name) &&
+      object.metadata.name.startsWith('selinux-policy-reload-')
+{{- end }}
+{{- end -}}

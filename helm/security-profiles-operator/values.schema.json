@@ -62,8 +62,28 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "cel": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "description": "Render the policies.kyverno.io/v1 PolicyException, which only applies to CEL policies (ValidatingPolicy)."
+                        }
+                    }
+                },
                 "enabled": {
                     "type": "boolean"
+                },
+                "legacy": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "description": "Render the kyverno.io/v2 PolicyException, which only applies to ClusterPolicies. Turn it off once the cluster runs the CEL policies."
+                        }
+                    }
                 },
                 "namespace": {
                     "type": "string"

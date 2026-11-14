@@ -1,9 +1,11 @@
-{{- if .Values.kyvernoPolicyExceptions.enabled }}
+{{- if and .Values.kyvernoPolicyExceptions.enabled .Values.kyvernoPolicyExceptions.legacy.enabled }}
 apiVersion: kyverno.io/v2
 kind: PolicyException
 metadata:
   name: security-profiles-operator-exceptions
   namespace: {{ .Values.kyvernoPolicyExceptions.namespace | default .Release.Namespace }}
+  labels:
+    policy.giantswarm.io/migrated-to-cel: "true"
   annotations:
     "helm.sh/hook": "pre-install,pre-upgrade"
 spec:
@@ -28,6 +30,8 @@ kind: PolicyException
 metadata:
   name: security-profiles-operator-webhook-exceptions
   namespace: {{ .Values.kyvernoPolicyExceptions.namespace | default .Release.Namespace }}
+  labels:
+    policy.giantswarm.io/migrated-to-cel: "true"
   annotations:
     "helm.sh/hook": "pre-install,pre-upgrade"
 spec:
@@ -56,6 +60,8 @@ kind: PolicyException
 metadata:
   name: security-profiles-operator-spod-exceptions
   namespace: {{ .Values.kyvernoPolicyExceptions.namespace | default .Release.Namespace }}
+  labels:
+    policy.giantswarm.io/migrated-to-cel: "true"
   annotations:
     "helm.sh/hook": "pre-install,pre-upgrade"
 spec:
@@ -187,6 +193,8 @@ kind: PolicyException
 metadata:
   name: security-profiles-operator-selinux-policy-reload-exceptions
   namespace: {{ .Values.kyvernoPolicyExceptions.namespace | default .Release.Namespace }}
+  labels:
+    policy.giantswarm.io/migrated-to-cel: "true"
   annotations:
     "helm.sh/hook": "pre-install,pre-upgrade"
 spec:
