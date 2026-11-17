@@ -62,16 +62,6 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "cel": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                        "enabled": {
-                            "type": "boolean",
-                            "description": "Render the policies.kyverno.io/v1 PolicyException, which only applies to CEL policies (ValidatingPolicy)."
-                        }
-                    }
-                },
                 "enabled": {
                     "type": "boolean"
                 },
