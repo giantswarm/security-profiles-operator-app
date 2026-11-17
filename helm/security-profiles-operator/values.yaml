@@ -4,7 +4,7 @@ kyvernoPolicyExceptions:
   # @default -- The release namespace
   namespace: ""
   legacy:
-    # -- Render the kyverno.io/v2 PolicyException, which only applies to ClusterPolicies. Turn it off once the cluster runs the CEL policies.
+    # -- Renders the kyverno.io/v2 PolicyException, which applies to ClusterPolicies only. Will be used as a global switch in a future release.
     enabled: true
 
 # @schema skipProperties: true
