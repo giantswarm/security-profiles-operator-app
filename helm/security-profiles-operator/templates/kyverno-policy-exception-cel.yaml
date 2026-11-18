@@ -27,7 +27,7 @@ spec:
       request.kind.kind in ['Pod', 'Deployment', 'ServiceAccount'] &&
       request.namespace == '{{ .Release.Namespace }}' &&
       has(object.metadata.name) &&
-      object.metadata.name.startsWith('security-profiles-operator')
+      (object.metadata.name == 'security-profiles-operator' || object.metadata.name.startsWith('security-profiles-operator-'))
 ---
 apiVersion: policies.kyverno.io/v1
 kind: PolicyException
@@ -56,7 +56,7 @@ spec:
       (request.kind.kind in ['Pod', 'Deployment'] &&
       request.namespace == '{{ .Release.Namespace }}' &&
       has(object.metadata.name) &&
-      object.metadata.name.startsWith('security-profiles-operator-webhook')) ||
+      (object.metadata.name == 'security-profiles-operator-webhook' || object.metadata.name.startsWith('security-profiles-operator-webhook-'))) ||
       (request.kind.kind == 'ServiceAccount' &&
       request.namespace == '{{ .Release.Namespace }}' &&
       has(object.metadata.name) &&
@@ -135,7 +135,7 @@ spec:
       request.kind.kind in ['Pod', 'DaemonSet', 'ServiceAccount'] &&
       request.namespace == '{{ .Release.Namespace }}' &&
       has(object.metadata.name) &&
-      object.metadata.name.startsWith('spod')
+      (object.metadata.name == 'spod' || object.metadata.name.startsWith('spod-'))
 {{- if index .Values "security-profiles-operator" "selinux" "enable" }}
 ---
 apiVersion: policies.kyverno.io/v1
