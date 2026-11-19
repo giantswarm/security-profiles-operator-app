@@ -1,6 +1,8 @@
 kyvernoPolicyExceptions:
   enabled: true
-  namespace: giantswarm
+  # -- Namespace to create the Kyverno PolicyExceptions in. Empty means the release namespace.
+  # @default -- The release namespace
+  namespace: ""
 
 # @schema skipProperties: true
 # @schema additionalProperties: true

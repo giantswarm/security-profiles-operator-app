@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Create the Kyverno PolicyExceptions in the release namespace by default instead of `giantswarm`.
+
 ## [0.1.0] - 2026-11-10
 
 ### Added
