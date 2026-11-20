@@ -22,7 +22,8 @@ security-profiles-operator:
       # Clears the upstream digest, which takes precedence over the tag
       digest: ""
     # Per-OS images for RHEL, RHCOS and Fedora nodes. retagger copies them by
-    # digest, so these keep the digests of the upstream chart.
+    # digest, so these keep the digests of the upstream chart. The el9 image
+    # is the default image above.
     el8:
       registry: gsoci.azurecr.io
       repository: giantswarm/selinuxd-el8
@@ -30,7 +31,7 @@ security-profiles-operator:
       digest: sha256:e6e7febc76f5f032d42d35b98cc651354dd14ac5ae7b2a7d7403222788e41e4d
     el9:
       registry: gsoci.azurecr.io
-      repository: giantswarm/selinuxd-el9
+      repository: giantswarm/selinuxd
       tag: v0.0.0-cddbd306c48ee8d19b8fb07b2acda1ee99cb3f1d9c3988f828d24b4f2de5ad3c
       digest: sha256:cddbd306c48ee8d19b8fb07b2acda1ee99cb3f1d9c3988f828d24b4f2de5ad3c
     fedora:
