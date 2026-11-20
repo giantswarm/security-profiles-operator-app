@@ -54,3 +54,38 @@ security-profiles-operator:
       - key: ebs.csi.aws.com/agent-not-ready
         effect: NoExecute
         operator: Exists
+
+  # Added to the operator Deployment's built-in tolerations. Giant Swarm arm64
+  # node pools carry this taint, and the operator image is multi-arch.
+  tolerations:
+    - key: kubernetes.io/arch
+      operator: Equal
+      value: arm64
+      effect: NoSchedule
+
+  # The webhook Deployment otherwise takes daemon.tolerations. It runs the
+  # multi-arch operator image, so unlike the daemon it can use arm64 nodes.
+  webhook:
+    tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+        operator: Exists
+      - key: node-role.kubernetes.io/control-plane
+        effect: NoSchedule
+        operator: Exists
+      - key: node.kubernetes.io/not-ready
+        effect: NoExecute
+        operator: Exists
+      - key: node.kubernetes.io/not-ready
+        effect: NoSchedule
+        operator: Exists
+      - key: node.cilium.io/agent-not-ready
+        effect: NoSchedule
+        operator: Exists
+      - key: ebs.csi.aws.com/agent-not-ready
+        effect: NoExecute
+        operator: Exists
+      - key: kubernetes.io/arch
+        operator: Equal
+        value: arm64
+        effect: NoSchedule
