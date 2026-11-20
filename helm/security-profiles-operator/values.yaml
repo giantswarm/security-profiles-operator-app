@@ -14,31 +14,27 @@ security-profiles-operator:
     repository: giantswarm/security-profiles-operator
     tag: v1.1.2
 
+  # Only the registry and repository are set here, the tags and digests come
+  # from the upstream chart. retagger copies every latest tag these name, so
+  # gsoci has the digests upstream pins.
   selinuxdImage:
+    # Nodes no OS mapping matches, such as Flatcar and Ubuntu, run the el9
+    # image instead of the upstream default image. Renovate keeps the digest at
+    # the latest el9 image on gsoci.
     default:
       registry: gsoci.azurecr.io
       repository: giantswarm/selinuxd
-      tag: v0.0.0-cddbd306c48ee8d19b8fb07b2acda1ee99cb3f1d9c3988f828d24b4f2de5ad3c
-      # Clears the upstream digest, which takes precedence over the tag
-      digest: ""
-    # Per-OS images for RHEL, RHCOS and Fedora nodes. retagger copies them by
-    # digest, so these keep the digests of the upstream chart. The el9 image
-    # is the default image above.
+      tag: latest
+      digest: sha256:cddbd306c48ee8d19b8fb07b2acda1ee99cb3f1d9c3988f828d24b4f2de5ad3c
     el8:
       registry: gsoci.azurecr.io
       repository: giantswarm/selinuxd-el8
-      tag: v0.0.0-e6e7febc76f5f032d42d35b98cc651354dd14ac5ae7b2a7d7403222788e41e4d
-      digest: sha256:e6e7febc76f5f032d42d35b98cc651354dd14ac5ae7b2a7d7403222788e41e4d
     el9:
       registry: gsoci.azurecr.io
       repository: giantswarm/selinuxd
-      tag: v0.0.0-cddbd306c48ee8d19b8fb07b2acda1ee99cb3f1d9c3988f828d24b4f2de5ad3c
-      digest: sha256:cddbd306c48ee8d19b8fb07b2acda1ee99cb3f1d9c3988f828d24b4f2de5ad3c
     fedora:
       registry: gsoci.azurecr.io
       repository: giantswarm/selinuxd-fedora
-      tag: v0.0.0-a5c36469e66bc44c32fc36d8d23571ed8903430233d32136b6272013a535627d
-      digest: sha256:a5c36469e66bc44c32fc36d8d23571ed8903430233d32136b6272013a535627d
 
   enableLogEnricher: true
 

@@ -1,0 +1,51 @@
+name: Check images
+
+# The selinuxd images come from the upstream chart by digest, and retagger
+# copies them to gsoci from their moving latest tags. This fails a pull request,
+# above all the update PR of an upstream sync, when the rendered chart names an
+# image outside gsoci.azurecr.io or a digest gsoci does not have.
+
+on:
+  pull_request:
+    branches:
+      - main
+  merge_group: {}
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check-images:
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+      - name: Check that every image is on gsoci
+        run: |
+          set -euo pipefail
+          # Container images, and the selinuxd images the operator gets
+          # through its RELATED_IMAGE_* environment variables.
+          images=$(helm template check helm/security-profiles-operator |
+            yq -N '(.. | select(has("image")) | .image),
+              (.. | select(has("name") and (.name | test("^RELATED_IMAGE_"))) | .value)' |
+            sort -u)
+          failed=0
+          for image in ${images}; do
+            if [[ "${image}" != gsoci.azurecr.io/* ]]; then
+              echo "::error::${image} is not on gsoci.azurecr.io"
+              failed=1
+            elif ! docker manifest inspect "${image}" > /dev/null; then
+              echo "::error::${image} is missing from gsoci.azurecr.io"
+              failed=1
+            else
+              echo "${image}"
+            fi
+          done
+          exit "${failed}"

@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Pull the selinuxd images for RHEL, RHCOS and Fedora nodes from `gsoci.azurecr.io` instead of `quay.io`.
+- Pull the selinuxd images for RHEL, RHCOS and Fedora nodes from `gsoci.azurecr.io` instead of `quay.io`, at the digests the upstream chart pins.
+- Pull the default selinuxd image (the el9 image) by digest, which Renovate keeps up to date.
 
 ## [0.1.1] - 2026-11-19
 

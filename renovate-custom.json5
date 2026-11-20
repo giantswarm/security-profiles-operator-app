@@ -20,6 +20,17 @@
       depNameTemplate: "kubernetes-sigs/security-profiles-operator",
       datasourceTemplate: "github-releases",
     },
+    {
+      // The default selinuxd image, which Giant Swarm points at the el9 image
+      // (retagger copies it to giantswarm/selinuxd). Keeps its digest at the
+      // one latest has on gsoci, which upstream pins for el9 as well.
+      fileMatch: ["^helm/security-profiles-operator/values\\.yaml$"],
+      matchStrings: [
+        "default:\\s*\\n\\s*registry: (?<registryUrl>[^\\s]+)\\s*\\n\\s*repository: (?<depName>giantswarm/selinuxd)\\s*\\n\\s*tag: (?<currentValue>latest)\\s*\\n\\s*digest: (?<currentDigest>sha256:[a-f0-9]{64})",
+      ],
+      registryUrlTemplate: "https://{{{registryUrl}}}",
+      datasourceTemplate: "docker",
+    },
   ],
   packageRules: [
     {
