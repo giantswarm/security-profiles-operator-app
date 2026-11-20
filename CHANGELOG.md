@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Pull the selinuxd images for RHEL, RHCOS and Fedora nodes from `gsoci.azurecr.io` instead of `quay.io`.
+
 ## [0.1.1] - 2026-11-19
 
 ### Changed
