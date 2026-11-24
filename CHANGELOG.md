@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Let the operator and webhook Deployments run on arm64 nodes. The daemon still does not tolerate the arm64 taint, since the selinuxd images are amd64 only.
+
 ## [0.1.1] - 2026-11-19
 
 ### Changed
