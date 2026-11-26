@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add a `policies.kyverno.io/v1` PolicyException next to the `kyverno.io/v2` one, so the exception also applies to the CEL (ValidatingPolicy) versions of the policies. The CEL one is always rendered; set `kyvernoPolicyExceptions.legacy.enabled: false` to stop rendering the legacy one.
+- Label the `kyverno.io/v2` PolicyExceptions with `policy.giantswarm.io/migrated-to-cel: "true"`, to mark them as migrated to CEL.
+
 ### Changed
 
 - Let the operator and webhook Deployments run on arm64 nodes. The daemon still does not tolerate the arm64 taint, since the selinuxd images are amd64 only.

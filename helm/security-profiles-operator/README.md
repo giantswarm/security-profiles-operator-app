@@ -20,4 +20,5 @@ A Giant Swarm App for security-profiles-operator, managing Seccomp, AppArmor, an
 |-----|------|---------|-------------|
 | kyvernoPolicyExceptions.enabled | bool | `true` |  |
 | kyvernoPolicyExceptions.namespace | string | The release namespace | Namespace to create the Kyverno PolicyExceptions in. Empty means the release namespace. |
+| kyvernoPolicyExceptions.legacy.enabled | bool | `true` | Renders the kyverno.io/v2 PolicyException, which applies to ClusterPolicies only. Will be used as a global switch in a future release. |
 | security-profiles-operator | object | See [values.yaml](./values.yaml#L17) | Values passed through to the upstream chart. For available options, see the [upstream values.yaml](https://github.com/kubernetes-sigs/security-profiles-operator/blob/v1.1.2/deploy/helm/values.yaml). |
